@@ -59,6 +59,21 @@ if ($whoOut -notmatch '@' -and $whoOut -notmatch 'logged in' -and $whoOut -notma
     exit 1
 }
 
+# ---- 准备 D1 数据库（P1 云端账号与同步） ----
+Write-Host "准备 D1 数据库：linguaverse" -ForegroundColor Cyan
+[void](Invoke-Wrangler @('d1', 'create', 'linguaverse'))
+[void](Invoke-Wrangler @('d1', 'execute', 'linguaverse', '--file=./schema.sql'))
+$infoJson = & $Node $NpxCli --yes wrangler@latest d1 info linguaverse --json 2>&1 | Out-String
+$idMatch = [regex]::Match($infoJson, '"uuid"\s*:\s*"([0-9a-fA-F-]+)"')
+if ($idMatch.Success -and (Test-Path wrangler.toml)) {
+    $toml = Get-Content wrangler.toml -Raw
+    if ($toml -match 'REPLACE_WITH_D1_ID') {
+        $toml = $toml -replace 'REPLACE_WITH_D1_ID', $idMatch.Groups[1].Value
+        Set-Content wrangler.toml -Value $toml -NoNewline
+        Write-Host "已把 D1 id 写入 wrangler.toml" -ForegroundColor Green
+    }
+}
+
 # ---- 创建项目（已存在则忽略报错） ----
 Write-Host "确保 Pages 项目存在：$ProjectName" -ForegroundColor Cyan
 [void](Invoke-Wrangler @('pages', 'project', 'create', $ProjectName, '--production-branch=master'))

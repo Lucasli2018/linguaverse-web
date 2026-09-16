@@ -1,6 +1,6 @@
 # LinguaVerse 开发路线图
 
-> 当前版本 v1.0.0（8592ee3，已推送 Gitee）。版本节奏遵循全局约定：常规迭代 +0.0.1，大功能升级 +0.1.0。
+> 当前版本 v1.1.0（P1 完成）。版本节奏遵循全局约定：常规迭代 +0.0.1，大功能升级 +0.1.0。
 
 ## P0 · 上线部署（本周，版本不变）
 
@@ -11,15 +11,17 @@
 - [ ] 移动端走查（iPhone Safari / 安卓 Chrome）：导航横滑、flash 卡片、语音权限
 - [ ] 静态资源缓存策略（Pages 默认即可，必要时加 `_headers`）
 
-## P1 · 云端账号与数据同步（v1.1.0，核心升级）
+## P1 · 云端账号与数据同步（v1.1.0，已完成 ✅）
 
-当前最大短板：账号与进度只存浏览器本地，换设备/清缓存即丢，社区和排行榜也只是"本地单人版"。
+账号与进度上云，换设备/清缓存不丢，社区与排行榜升级为真实跨用户数据。
 
-- [ ] Cloudflare Workers + D1 建表：`users / sessions / progress / posts / comments / likes`
-- [ ] 鉴权：注册登录走 API，密码 PBKDF2 哈希（Workers 原生 crypto），HttpOnly Cookie 会话
-- [ ] 前端 store 层改造为「API 优先 + 浏览器本地缓存兜底」，离线时可学、联网后同步
-- [ ] 社区 / 排行榜切为真实跨用户数据（种子帖保留为冷启动内容）
-- [ ] 里程碑验收：手机注册 → 电脑登录，进度无缝衔接
+- [x] Cloudflare Pages Functions + D1 建表：`users / sessions / posts / comments / likes`（schema.sql）
+- [x] 鉴权：注册登录走 API，密码 PBKDF2 哈希（Workers 原生 Web Crypto），HttpOnly Cookie 会话
+- [x] 前端 store 层改造为「API 优先 + 浏览器本地缓存兜底」，离线可学、联网自动同步（含离线队列）
+- [x] 社区 / 排行榜切为真实跨用户数据（种子帖保留为冷启动内容）
+- [x] 里程碑验收：手机注册 → 电脑登录，进度无缝衔接（Cookie 会话自动携带）
+
+> 部署注意：本仓库用 Pages Functions（`functions/api/*`），部署前需 `wrangler d1 create linguaverse` 建库；`deploy.ps1` 已自动创建并执行 schema、注入 `database_id`。纯静态部署（无 functions）时前端自动降级为本地模式，功能不受影响。
 
 ## P2 · 内容与记忆算法（v1.2.x，迭代交付）
 

@@ -1,6 +1,6 @@
-# LinguaVerse · 沉浸式多语言学习平台
+# LinguaVerse · 沉浸式多语言学习平台（v1.1.0）
 
-单文件零依赖的多语言在线学习网站（英语 / 日语 / 韩语），双击 `index.html` 即可本地运行，一条命令部署到 Cloudflare Pages。
+单文件零依赖的多语言在线学习网站（英语 / 日语 / 韩语），双击 `index.html` 即可本地运行，一条命令部署到 Cloudflare Pages，并支持云端账号与进度同步。
 
 ## 功能一览
 
@@ -12,29 +12,32 @@
 | 🎧 听力训练 | 原声播放（可调语速），听音选义 |
 | 🎙️ 口语跟读 | 示范发音 + 麦克风语音识别跟读打分（Chrome/Edge），不支持时自动降级为自评 |
 | 📈 学习进度追踪 | XP 经验、连续打卡、7 天学习曲线、模块正确率分析、课程完成度 |
-| 👤 用户注册登录 | 本地账号体系（localStorage，密码哈希存储），进度随账号保存 |
+| 👤 用户注册登录 | 云端账号体系（Cloudflare D1 + PBKDF2 哈希 + HttpOnly Cookie 会话），多设备无缝衔接 |
+| ☁️ 云端同步 | 写操作先落本地缓存再异步同步云端，离线可学、联网自动回传（含离线队列） |
 | 🧭 个性化路径推荐 | 根据正确率/未完成单元/打卡状态智能推荐下一步学什么 |
-| 💬 社区 + 🏅 成就激励 | 讨论区发帖/点赞/评论、XP 排行榜、8 枚成就徽章 |
+| 💬 社区 + 🏅 成就激励 | 真实跨用户讨论区发帖/点赞/评论、XP 排行榜、8 枚成就徽章 |
 
 ## 本地运行
 
 零依赖，任选其一：
 
 ```powershell
-# 方式一：直接双击 index.html（file:// 打开即可用）
+# 方式一：直接双击 index.html（file:// 打开即可用，纯本地模式）
 # 方式二：静态服务器
 cd linguaverse-web
 python -m http.server 8611
 # 打开 http://localhost:8611
 ```
 
-## 部署到 Cloudflare Pages
+> 未部署后端函数时，站点自动以**本地模式**运行（数据存浏览器本地），功能完整；部署 Pages Functions 后自动切换为云端同步模式。
+
+## 部署到 Cloudflare Pages（含云端后端）
 
 ```powershell
 # 首次：浏览器 OAuth 登录 Cloudflare（一次性）
 powershell -ExecutionPolicy Bypass -File deploy.ps1 -Login
 
-# 部署 / 更新
+# 部署 / 更新（会自动建 D1 库、执行 schema、注入 database_id）
 powershell -ExecutionPolicy Bypass -File deploy.ps1
 ```
 
@@ -47,7 +50,14 @@ $env:CLOUDFLARE_API_TOKEN = "你的令牌"
 powershell -ExecutionPolicy Bypass -File deploy.ps1
 ```
 
-或手动：`npx wrangler pages deploy . --project-name=linguaverse`
+手动步骤等价于：
+
+```bash
+npx wrangler d1 create linguaverse
+npx wrangler d1 execute linguaverse --file=./schema.sql
+# 把 wrangler.toml 里的 database_id 占位符换成真实 id
+npx wrangler pages deploy . --project-name=linguaverse
+```
 
 ## 测试
 
@@ -59,18 +69,21 @@ NODE_PATH=<jsdom 所在 node_modules> node tests/flow.test.js
 
 ## 技术说明
 
-- **单文件零依赖**：全部 HTML/CSS/JS 内联在 `index.html`（约 1100 行），无构建、无 npm、无 CDN 外链，国内外网络均可秒开。
+- **单文件零依赖**：全部 HTML/CSS/JS 内联在 `index.html`（约 1200 行），无构建、无 npm、无 CDN 外链，国内外网络均可秒开。
+- **云端后端（P1）**：Cloudflare Pages Functions（`functions/api/*.js`）+ D1。注册/登录走 API，密码用 Workers 原生 Web Crypto（PBKDF2-SHA256）哈希，会话用 HttpOnly + SameSite=Lax Cookie。前端 store 层为「API 优先 + 本地缓存兜底」：写点先落本地再异步 PUT `/api/me`，离线进队列、联网重试；无后端时纯本地降级。
 - **语音能力**：Web Speech API（`speechSynthesis` 发音示范 / `SpeechRecognition` 跟读识别），不支持语音识别的浏览器自动降级为自评模式。
-- **数据存储**：`localStorage`，账号与学习进度保存在浏览器本地。若需多设备同步/云端账号，后续可加 Cloudflare Workers + D1/KV 做后端（前端接口已集中在一个 store 层，改造成本低）。
 - **路由**：HashRouter（`#/courses`、`#/learn/en`），刷新不 404，天然适配静态托管。
 
 ## 目录结构
 
 ```
 linguaverse-web/
-├── index.html        # 全部页面 + 逻辑（唯一必需文件）
-├── tests/flow.test.js# jsdom 全流程冒烟测试
-├── deploy.ps1        # Cloudflare Pages 一键部署
-├── deploy.bat        # 双击部署
+├── index.html          # 全部页面 + 逻辑（唯一必需文件，前端 store 层含云端同步）
+├── functions/api/       # Cloudflare Pages Functions 后端（register/login/logout/me/posts…）
+├── schema.sql          # D1 建表语句
+├── wrangler.toml       # Pages + D1 绑定配置
+├── tests/flow.test.js  # jsdom 全流程冒烟测试
+├── deploy.ps1          # Cloudflare Pages 一键部署（含 D1）
+├── deploy.bat          # 双击部署
 └── README.md
 ```

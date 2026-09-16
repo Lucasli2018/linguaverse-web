@@ -511,6 +511,53 @@ function loadDB(){ try { return JSON.parse(localStorage.getItem(DB_KEY)) || { us
 function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 let db = loadDB();
 
+/* ---------- 云端同步层（P1） ---------- */
+const API_BASE = "";
+let CLOUD = { on: true, pending: false, syncing: false, lastErr: "" };
+function cloudOnline(){ return CLOUD.on && (typeof navigator === "undefined" || navigator.onLine !== false); }
+async function apiFetch(path, opts = {}) {
+  if (typeof fetch !== "function") throw new Error("NETWORK");
+  let r;
+  try { r = await fetch(API_BASE + path, Object.assign({ credentials: "same-origin", headers: { "content-type": "application/json" } }, opts)); }
+  catch (e) { throw new Error("NETWORK"); }
+  if (!r.ok) { let e = null; try { e = await r.json(); } catch (_) {} throw new Error((e && e.error) || ("HTTP " + r.status)); }
+  return r.json();
+}
+let _syncTimer = null;
+function cloudScheduleSync() {
+  if (!cloudOnline()) { CLOUD.pending = true; return; }
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(() => { const u = curUser(); if (u) cloudPushUser(u); }, 700);
+}
+async function cloudPushUser(u) {
+  if (!cloudOnline()) { CLOUD.pending = true; return; }
+  CLOUD.syncing = true;
+  try {
+    await apiFetch("/api/me", { method: "PUT", body: JSON.stringify({ xp: u.xp, days: u.days, streak: u.streak, bestStreak: u.bestStreak, ach: u.ach, enrolled: u.enrolled, progress: u.progress, moduleStat: u.moduleStat }) });
+    CLOUD.pending = false; CLOUD.lastErr = "";
+  } catch (e) { CLOUD.pending = true; CLOUD.lastErr = String((e && e.message) || e); }
+  finally { CLOUD.syncing = false; }
+}
+async function cloudPullPosts() {
+  try {
+    const d = await apiFetch("/api/posts");
+    if (Array.isArray(d.posts) && d.posts.length) { db.posts = d.posts; saveDB(db); if (location.hash.indexOf("/community") >= 0) route(); }
+    return true;
+  } catch (e) { return false; }
+}
+// 启动时探测后端：401/200 表示有后端；404/网络错误表示纯静态部署，降级本地
+async function bootCloud() {
+  try {
+    const r = await fetch(API_BASE + "/api/me", { credentials: "same-origin" });
+    if (r.status === 401 || r.status === 200) {
+      CLOUD.on = true;
+      if (r.status === 200) { const d = await r.json(); if (d.user) { db.users[d.user.name] = d.user; db.session = d.user.name; saveDB(db); } }
+      return;
+    }
+    CLOUD.on = false;
+  } catch (e) { CLOUD.on = false; }
+}
+
 function curUser(){ return db.session ? db.users[db.session] : null; }
 function newUser(name, pw){
   db.users[name] = {
@@ -520,7 +567,7 @@ function newUser(name, pw){
   };
   return db.users[name];
 }
-function saveUser(u){ db.users[u.name] = u; saveDB(db); }
+function saveUser(u){ db.users[u.name] = u; saveDB(db); if (CLOUD.on) cloudScheduleSync(); }
 
 /* XP / 连续天数 / 成就 */
 function gainXP(u, n){
@@ -603,7 +650,7 @@ function navHTML(page){
       : `<a class="btn btn-ghost btn-sm" href="#/login">登录</a><a class="btn btn-pri btn-sm" href="#/register">免费注册</a>`}</div>
   </div></nav>`;
 }
-function footHTML(){ return `<div class="footer"><div class="wrap">LinguaVerse · 沉浸式多语言学习平台 — 英语 · 日语 · 韩语<br><span style="font-size:12px">数据保存在浏览器本地 · 单文件零依赖 · 可部署于 Cloudflare Pages</span></div></div>`; }
+function footHTML(){ return `<div class="footer"><div class="wrap">LinguaVerse · 沉浸式多语言学习平台 — 英语 · 日语 · 韩语<br><span style="font-size:12px">云端同步已开启 · 单文件零依赖 · 可部署于 Cloudflare Pages</span></div></div>`; }
 function authGuard(page){
   if (!curUser()) { toast("请先登录后再继续哦～", "bad"); nav("/login"); return false; }
   return true;
@@ -957,6 +1004,11 @@ function tts(text, lang, opt){
 }
 
 /* ---------- 页面：学习进度 ---------- */
+function syncBadgeHTML(){
+  if (!CLOUD.on) return `<span style="font-size:12px;padding:4px 10px;border-radius:999px;background:#f1efea;color:#5f5e5a">💾 本地模式</span>`;
+  if (CLOUD.pending) return `<span style="font-size:12px;padding:4px 10px;border-radius:999px;background:#fdf2e9;color:#b45309">⏳ 待同步云端</span>`;
+  return `<span style="font-size:12px;padding:4px 10px;border-radius:999px;background:#eef2ff;color:#534ab7">☁️ 已同步云端</span>`;
+}
 function viewProgress(){
   if (!authGuard()) return "";
   const u = curUser();
@@ -969,7 +1021,15 @@ function viewProgress(){
   const rec = recommend(u);
   return `${navHTML("progress")}
   <section class="section"><div class="wrap">
-    <div class="sec-head" style="text-align:left;margin-bottom:26px"><h2>学习进度</h2><p>你好 ${esc(u.name)}，这是你的学习足迹</p></div>
+    <div class="sec-head" style="text-align:left;margin-bottom:26px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px">
+        <div><h2>学习进度</h2><p>你好 ${esc(u.name)}，这是你的学习足迹</p></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          ${syncBadgeHTML()}
+          <button class="btn btn-ghost btn-sm" onclick="logout()">退出登录</button>
+        </div>
+      </div>
+    </div>
     <div class="stat-grid">
       <div class="stat"><div class="v">⚡ ${u.xp}</div><div class="k">累计 XP</div></div>
       <div class="stat"><div class="v">🔥 ${u.streak} 天</div><div class="k">连续打卡（最长 ${u.bestStreak} 天）</div></div>
@@ -1045,6 +1105,7 @@ function recommend(u){
 /* ---------- 页面：社区 ---------- */
 function viewCommunity(){
   const u = curUser();
+  if (CLOUD.on && u) cloudPullPosts();
   const posts = getPosts();
   return `${navHTML("community")}
   <section class="section"><div class="wrap" style="max-width:760px">
@@ -1080,27 +1141,34 @@ function postHTML(p, u){
     ${u ? `<div class="cmt-row"><input id="cmt-${p.id}" placeholder="友善回复…" onkeydown="if(event.key==='Enter')submitCmt('${p.id}')"><button class="btn btn-ghost btn-sm" onclick="submitCmt('${p.id}')">回复</button></div>` : ""}
   </div>`;
 }
-window.likePost = function(id){
+window.likePost = async function(id){
   const u = curUser(); if (!u) { toast("登录后才能点赞哦", "bad"); return; }
   const p = getPosts().find(x => x.id === id); if (!p) return;
   p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveDB(db); route();
+  if (CLOUD.on) { try { await apiFetch("/api/posts/" + encodeURIComponent(id), { method: "POST", body: JSON.stringify({ action: "like" }) }); } catch (e) { CLOUD.pending = true; } }
 };
 window.focusCmt = id => { const el = $("#cmt-" + id); if (el) el.focus(); };
-window.submitCmt = function(id){
+window.submitCmt = async function(id){
   const u = curUser(); if (!u) { toast("登录后才能评论哦", "bad"); return; }
   const el = $("#cmt-" + id); const t = (el.value || "").trim();
   if (!t) return;
-  getPosts().find(x => x.id === id).comments.push({ user: u.name, text: t });
-  saveDB(db); toast("评论成功", "ok"); route();
+  const p = getPosts().find(x => x.id === id); if (!p) return;
+  p.comments.push({ user: u.name, text: t }); saveDB(db); toast("评论成功", "ok"); route();
+  if (CLOUD.on) { try { await apiFetch("/api/posts/" + encodeURIComponent(id), { method: "POST", body: JSON.stringify({ action: "comment", text: t }) }); } catch (e) { CLOUD.pending = true; } }
 };
-window.submitPost = function(){
+window.submitPost = async function(){
   const u = curUser(); if (!u) return;
   const body = ($("#postBody").value || "").trim();
   if (!body) { toast("写点什么再发布吧～", "bad"); return; }
-  getPosts().unshift({ id: "u" + Date.now(), user: u.name, avatarColor: "var(--pri)", time: Date.now(), body, likes: 0, liked: false, comments: [] });
-  saveDB(db);
-  if (!u.ach.includes("social")) { u.ach.push("social"); checkAch(u); saveUser(u); }
-  $("#postBody").value = ""; toast("发布成功！+10 XP", "ok"); gainXP(u, 10); route();
+  if (!u.ach.includes("social")) { u.ach.push("social"); checkAch(u); }
+  const localId = "u" + Date.now();
+  getPosts().unshift({ id: localId, user: u.name, avatarColor: "var(--pri)", time: Date.now(), body, likes: 0, liked: false, comments: [] });
+  saveDB(db); gainXP(u, 10); $("#postBody").value = ""; toast("发布成功！+10 XP", "ok"); route();
+  if (CLOUD.on) {
+    try { const d = await apiFetch("/api/posts", { method: "POST", body: JSON.stringify({ body }) });
+      const p = db.posts.find(x => x.id === localId); if (p && d.id) { p.id = d.id; saveDB(db); } }
+    catch (e) { CLOUD.pending = true; }
+  }
 };
 function lbHTML(u){
   const list = [...SEED_LB];
@@ -1153,23 +1221,56 @@ function viewRegister(){
     <div class="auth-alt">已有账号？<a href="#/login">直接登录</a></div>
   </div></div>${footHTML()}`;
 }
-window.doLogin = function(){
+window.doLogin = async function(){
   const n = $("#li-user").value.trim(), p = $("#li-pw").value;
+  const err = $("#li-err");
+  if (!n || !p) { if (err) err.textContent = "请输入用户名和密码"; return; }
+  if (CLOUD.on) {
+    try {
+      const d = await apiFetch("/api/login", { method: "POST", body: JSON.stringify({ user: n, pw: p }) });
+      db.users[d.user.name] = Object.assign({ pw: hashPw(p) }, d.user); db.session = d.user.name; saveDB(db);
+      toast(`欢迎回来，${n}！`, "ok"); nav("/learn"); return;
+    } catch (e) {
+      if (e.message === "NETWORK" || e.message === "HTTP 404") {
+        const u = db.users[n];
+        if (u) { db.session = n; saveDB(db); toast(`🔌 离线模式：${n}，联网后进度自动同步`, "ok"); nav("/learn"); return; }
+        if (err) err.textContent = "网络异常，请检查连接后重试"; return;
+      }
+      if (err) err.textContent = e.message; return; // 401 密码错等
+    }
+  }
   const u = db.users[n];
-  if (!u || u.pw !== hashPw(p)) { $("#li-err").textContent = "用户名或密码不正确"; return; }
+  if (!u || u.pw !== hashPw(p)) { if (err) err.textContent = "用户名或密码不正确"; return; }
   db.session = n; saveDB(db); toast(`欢迎回来，${n}！`, "ok"); nav("/learn");
 };
-window.doRegister = function(){
+window.doRegister = async function(){
   const n = $("#rg-user").value.trim(), p = $("#rg-pw").value, p2 = $("#rg-pw2").value;
   const err = $("#rg-err");
   if (n.length < 2) { err.textContent = "用户名至少 2 个字符"; return; }
-  if (db.users[n]) { err.textContent = "该用户名已被注册"; return; }
   if (p.length < 6) { err.textContent = "密码至少 6 位"; return; }
   if (p !== p2) { err.textContent = "两次输入的密码不一致"; return; }
+  if (CLOUD.on) {
+    try {
+      const d = await apiFetch("/api/register", { method: "POST", body: JSON.stringify({ user: n, pw: p }) });
+      db.users[d.user.name] = Object.assign({ pw: hashPw(p) }, d.user); db.session = d.user.name; saveDB(db);
+      toast(`🎉 欢迎加入 LinguaVerse，${n}！`, "ok"); nav("/courses"); return;
+    } catch (e) {
+      if (e.message === "NETWORK" || e.message === "HTTP 404") {
+        // 无后端 / 离线：纯本地兜底注册
+        const u = newUser(n, p); db.session = n; checkAch(u); saveDB(db);
+        CLOUD.on = false;
+        toast(`🎉 欢迎加入 LinguaVerse，${n}！（本地模式）`, "ok"); nav("/courses"); return;
+      }
+      err.textContent = e.message || "注册失败"; return; // 409 已注册等
+    }
+  }
   const u = newUser(n, p); db.session = n; checkAch(u); saveDB(db);
   toast(`🎉 欢迎加入 LinguaVerse，${n}！`, "ok"); nav("/courses");
 };
-window.logout = null; // 顶栏点击头像进进度页；如需退出可在进度页操作
+window.logout = async function(){
+  if (CLOUD.on) { try { await apiFetch("/api/logout", { method: "POST" }); } catch (e) {} }
+  db.session = null; saveDB(db); toast("已退出登录", "ok"); nav("/home");
+};
 
 /* ---------- 渲染入口 ---------- */
 function render(page){
@@ -1181,6 +1282,7 @@ function render(page){
   app.innerHTML = (views[page] || viewHome)();
 }
 route();
+bootCloud().finally(route);
 </script>
 </body>
 </html>

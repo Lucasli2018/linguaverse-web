@@ -1,4 +1,4 @@
-/* LinguaVerse 全流程冒烟测试（jsdom） */
+/* LinguaVerse 全流程冒烟测试（jsdom，P1 本地模式回归） */
 const fs = require("fs");
 const path = require("path");
 const { JSDOM } = require(path.join("C:/Users/Administrator/.workbuddy/binaries/node/workspace/node_modules", "jsdom"));
@@ -27,19 +27,19 @@ const qa = s => [...app().querySelectorAll(s)];
 const text = () => app().textContent;
 const sync = () => window.dispatchEvent(new window.Event("hashchange"));
 
-setTimeout(() => {
+setTimeout(async () => {
   try {
     console.log("— 1. 首页 —");
     ok(text().includes("用母语者的方式"), "首页 hero 渲染");
     ok(qa(".lang-card").length >= 3, "三语种卡片渲染");
 
-    console.log("— 2. 注册 —");
+    console.log("— 2. 注册（本地兜底模式）—");
     window.location.hash = "#/register";
     sync();
     document.querySelector("#rg-user").value = "tester";
     document.querySelector("#rg-pw").value = "123456";
     document.querySelector("#rg-pw2").value = "123456";
-    window.doRegister();
+    await window.doRegister();
     ok(!!window.location.hash.match(/courses/), "注册后跳转课程中心");
     ok(text().includes("已报名") === false, "初始未报名状态正确");
 
@@ -97,9 +97,9 @@ setTimeout(() => {
     window.location.hash = "#/community";
     sync();
     ok(qa(".post").length === 3, "3 条种子帖渲染");
-    window.likePost("s1");
+    await window.likePost("s1");
     document.querySelector("#postBody").value = "今天完成了第一个单元！";
-    window.submitPost();
+    await window.submitPost();
     ok(qa(".post").length === 4, "发帖成功");
     const u3 = JSON.parse(window.localStorage.getItem("linguaverse_db_v1")).users.tester;
     ok(u3.ach.includes("social"), "成就「社区之声」解锁");
@@ -117,10 +117,10 @@ setTimeout(() => {
     sync();
     document.querySelector("#li-user").value = "tester";
     document.querySelector("#li-pw").value = "wrongpw";
-    window.doLogin();
+    await window.doLogin();
     ok(text().includes("用户名或密码不正确"), "错误密码被拒绝");
     document.querySelector("#li-pw").value = "123456";
-    window.doLogin();
+    await window.doLogin();
     ok(window.location.hash.includes("/learn"), "重新登录成功");
 
     console.log("— 13. 日语报名与语言切换 —");

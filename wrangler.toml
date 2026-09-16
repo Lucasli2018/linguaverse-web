@@ -1,0 +1,10 @@
+name = "linguaverse-web"
+pages_build_output_dir = "."
+compatibility_date = "2024-09-23"
+
+# Pages Functions 的 D1 绑定。database_id 占位，部署前由 deploy.ps1 用
+# `wrangler d1 create linguaverse` 的真实 id 注入（或手动填）。
+[[d1_databases]]
+binding = "DB"
+database_name = "linguaverse"
+database_id = "REPLACE_WITH_D1_ID"
