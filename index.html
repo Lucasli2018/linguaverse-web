@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaVerse · 沉浸式多语言学习</title>
+<meta name="description" content="LinguaVerse —— 英语、日语、韩语沉浸式在线学习平台：分级课程、单词记忆、语法练习、口语跟读、听力训练、进度追踪与社区成就。">
+<style>
+:root{
+  --bg:#f6f7fb; --panel:#ffffff; --ink:#1c2333; --muted:#6b7386; --line:#e6e9f2;
+  --pri:#5b5ce2; --pri-d:#4647c9; --pri-soft:#eeeefe;
+  --acc:#f59e0b; --ok:#10b981; --bad:#ef4444; --pink:#ec4899; --cyan:#06b6d4;
+  --r:14px; --shadow:0 6px 24px rgba(28,35,51,.07);
+  --grad:linear-gradient(135deg,#5b5ce2 0%,#8b5cf6 55%,#ec4899 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:14px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ===== 顶部导航 ===== */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:26px;height:62px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:.3px}
+.logo .mark{width:34px;height:34px;border-radius:10px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
+.nav-links{display:flex;gap:4px;flex:1}
+.nav-links a{padding:8px 13px;border-radius:9px;font-size:14.5px;color:var(--muted);font-weight:500;transition:.15s}
+.nav-links a:hover{background:var(--pri-soft);color:var(--pri)}
+.nav-links a.on{background:var(--pri-soft);color:var(--pri);font-weight:700}
+.nav-user{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:14px;font-weight:600;transition:.15s;border:1px solid transparent}
+.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-d)}
+.btn-ghost{border-color:var(--line);color:var(--ink);background:#fff}.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
+.btn-lg{padding:12px 26px;font-size:15.5px;border-radius:12px}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ===== Hero ===== */
+.hero{background:var(--grad);color:#fff;padding:72px 0 88px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.09);top:-160px;right:-90px}
+.hero::after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.07);bottom:-120px;left:-60px}
+.hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center}
+.hero h1{font-size:42px;line-height:1.25;font-weight:800;margin-bottom:16px}
+.hero p.sub{font-size:16.5px;opacity:.92;line-height:1.8;margin-bottom:28px}
+.hero .tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.tag{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 13px;border-radius:99px;font-size:13px}
+.hero-card{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:22px;backdrop-filter:blur(6px)}
+.hero-card .row{display:flex;justify-content:space-between;align-items:center;padding:11px 4px;border-bottom:1px dashed rgba(255,255,255,.2)}
+.hero-card .row:last-child{border:none}
+.hero-card .row b{font-size:15px}
+.hero-card .row span{font-size:13px;opacity:.85}
+
+.section{padding:54px 0}
+.sec-head{text-align:center;margin-bottom:36px}
+.sec-head h2{font-size:27px;font-weight:800;margin-bottom:9px}
+.sec-head p{color:var(--muted);font-size:14.5px}
+
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.card h3{font-size:16.5px;margin-bottom:8px}
+.card p{font-size:13.5px;color:var(--muted);line-height:1.75}
+.icon-bub{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+
+/* 语言卡 */
+.lang-card{cursor:pointer;transition:.18s;position:relative;overflow:hidden}
+.lang-card:hover{transform:translateY(-4px);border-color:var(--pri)}
+.lang-card .flag{font-size:40px}
+.lang-card .learners{font-size:12px;color:var(--muted);margin-top:10px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.pill-pri{background:var(--pri-soft);color:var(--pri)}
+.pill-ok{background:#e7f8f1;color:#0b9e6f}
+.pill-warn{background:#fef3e2;color:#c07a08}
+
+/* 等级路径 */
+.ladder{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+.lv-row{display:flex;gap:16px;align-items:stretch;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.lv-row.locked{opacity:.62;background:#fafafc}
+.lv-badge{min-width:64px;height:64px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
+.lv-info{flex:1}
+.lv-info h4{font-size:16px;margin-bottom:5px}
+.lv-info p{font-size:13px;color:var(--muted);line-height:1.6}
+.lv-meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:14px}
+.lv-act{display:flex;align-items:center}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;background:#fff;border:1px solid var(--line);padding:6px;border-radius:12px;box-shadow:var(--shadow);flex-wrap:wrap}
+.tabs button{flex:1;padding:10px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tabs button.on{background:var(--pri);color:#fff}
+.tabs button.done::after{content:" ✓";color:var(--ok)}
+.tabs button.on.done::after{color:#d1fae5}
+
+/* 学习区 */
+.learn-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.flash-wrap{max-width:560px;margin:0 auto;text-align:center}
+.flash{perspective:1200px;height:260px;margin:18px 0}
+.flash-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;cursor:pointer}
+.flash.flip .flash-in{transform:rotateY(180deg)}
+.flash-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;box-shadow:var(--shadow)}
+.flash-front{background:var(--panel);border:1px solid var(--line)}
+.flash-back{background:var(--grad);color:#fff;transform:rotateY(180deg)}
+.flash .word{font-size:34px;font-weight:800}
+.flash .phon{color:var(--muted);font-size:15px}
+.flash-back .m{font-size:26px;font-weight:700}
+.flash-back .s{font-size:14px;opacity:.9}
+.rate-row{display:flex;gap:12px;justify-content:center}
+.rate{padding:11px 22px;border-radius:11px;font-weight:700;font-size:14px}
+.rate-no{background:#fee2e2;color:#b91c1c}.rate-no:hover{background:#fecaca}
+.rate-yes{background:#d1fae5;color:#047857}.rate-yes:hover{background:#a7f3d0}
+
+.q-opt{display:block;width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--line);border-radius:11px;font-size:14.5px;margin-bottom:10px;background:#fff;transition:.14s}
+.q-opt:hover{border-color:var(--pri)}
+.q-opt.right{border-color:var(--ok);background:#ecfdf5}
+.q-opt.wrong{border-color:var(--bad);background:#fef2f2}
+.tip-box{background:var(--pri-soft);border-radius:11px;padding:13px 16px;font-size:13.5px;color:var(--pri-d);line-height:1.7;margin-top:6px}
+
+.speak-box{max-width:620px;margin:0 auto;text-align:center}
+.speak-sent{font-size:26px;font-weight:700;margin:18px 0 6px;line-height:1.5}
+.speak-hint{color:var(--muted);font-size:14px;margin-bottom:20px}
+.mic-dot{width:78px;height:78px;border-radius:50%;background:var(--grad);color:#fff;font-size:30px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(91,92,226,.35);transition:.2s;margin:0 8px}
+.mic-dot:hover{transform:scale(1.06)}
+.mic-dot.rec{animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(236,72,153,.45)}70%{box-shadow:0 0 0 22px rgba(236,72,153,0)}100%{box-shadow:0 0 0 0 rgba(236,72,153,0)}}
+
+/* 进度 */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.stat .v{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .k{font-size:13px;color:var(--muted);margin-top:4px}
+.bar{height:9px;background:#eef0f6;border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .4s}
+.prog-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px dashed var(--line)}
+.prog-row:last-child{border:none}
+.prog-row .flag{font-size:24px}
+.prog-row .info{flex:1}
+.prog-row .info b{font-size:14.5px}
+.chart{display:flex;align-items:flex-end;gap:12px;height:150px;padding:10px 6px 0}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.chart .barv{width:100%;max-width:44px;background:var(--grad);border-radius:7px 7px 3px 3px;min-height:3px;transition:height .4s}
+.chart .lb{font-size:11px;color:var(--muted)}
+.chart .num{font-size:11px;font-weight:700;color:var(--pri)}
+
+/* 社区 */
+.post{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+.post .head{display:flex;gap:11px;align-items:center;margin-bottom:10px}
+.post .head .avatar{cursor:default}
+.post .head b{font-size:14.5px}
+.post .head time{font-size:12px;color:var(--muted);margin-left:auto}
+.post .body{font-size:14px;line-height:1.8;color:#333c52}
+.post .acts{display:flex;gap:18px;margin-top:12px;font-size:13px;color:var(--muted)}
+.post .acts button{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:5px}
+.post .acts button:hover,.post .acts button.liked{color:var(--pri)}
+.post .cmt{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.post .cmt .c{font-size:13px;color:#414a60;padding:5px 0}
+.post .cmt .c b{color:var(--ink)}
+.cmt-row{display:flex;gap:8px;margin-top:10px}
+.cmt-row input{flex:1;border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;outline:none}
+.cmt-row input:focus{border-color:var(--pri)}
+textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font-size:14px;min-height:88px;resize:vertical;outline:none}
+textarea.ta:focus{border-color:var(--pri)}
+
+/* 成就 */
+.ach{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.ach .medal{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;background:#f1f2f8;filter:grayscale(1);opacity:.55;flex:none}
+.ach.got .medal{background:linear-gradient(135deg,#fde68a,#f59e0b);filter:none;opacity:1;box-shadow:0 4px 14px rgba(245,158,11,.35)}
+.ach .t b{font-size:14.5px;display:block}
+.ach .t span{font-size:12.5px;color:var(--muted)}
+.lb-row{display:flex;align-items:center;gap:13px;padding:12px 6px;border-bottom:1px dashed var(--line);font-size:14.5px}
+.lb-row:last-child{border:none}
+.lb-rank{width:30px;height:30px;border-radius:9px;background:#f1f2f8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--muted);flex:none}
+.lb-row.me{background:var(--pri-soft);border-radius:10px;padding-left:10px;padding-right:10px}
+.lb-row.me .lb-rank{background:var(--pri);color:#fff}
+
+/* 表单 */
+.auth-wrap{max-width:420px;margin:56px auto}
+.auth-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:var(--shadow)}
+.auth-card h2{text-align:center;font-size:22px;margin-bottom:6px}
+.auth-card .sub{text-align:center;color:var(--muted);font-size:13.5px;margin-bottom:24px}
+.fld{margin-bottom:15px}
+.fld label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a4256}
+.fld input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;outline:none;transition:.15s}
+.fld input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(91,92,226,.12)}
+.f-err{color:var(--bad);font-size:12.5px;margin-top:5px;min-height:16px}
+.auth-alt{text-align:center;font-size:13.5px;color:var(--muted);margin-top:16px}
+.auth-alt a{color:var(--pri);font-weight:600}
+
+/* Toast */
+#toasts{position:fixed;top:74px;right:20px;z-index:99;display:flex;flex-direction:column;gap:10px}
+.toast{background:#1c2333;color:#fff;padding:12px 18px;border-radius:11px;font-size:13.5px;box-shadow:0 8px 26px rgba(0,0,0,.22);animation:tin .25s;max-width:320px}
+.toast.ok{background:#0b9e6f}.toast.bad{background:#dc2626}.toast.gold{background:#b45309}
+@keyframes tin{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+
+.footer{border-top:1px solid var(--line);padding:30px 0;text-align:center;color:var(--muted);font-size:13px;margin-top:40px}
+.empty{text-align:center;padding:44px 0;color:var(--muted);font-size:14px}
+.backlink{font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;margin-bottom:14px}
+.backlink:hover{color:var(--pri)}
+.sel{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;outline:none;font-size:14px}
+.sel:focus{border-color:var(--pri)}
+@media(max-width:900px){
+  .hero-in{grid-template-columns:1fr}.g4,.g3{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}
+  .nav-links{overflow-x:auto}.hero h1{font-size:31px}
+}
+@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}.nav-in{gap:12px}.nav-links a{padding:8px 8px;font-size:13px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   LinguaVerse · 沉浸式多语言学习平台（单文件零依赖版）
+   数据存储：localStorage（浏览器本地）
+   ========================================================= */
+
+/* ---------- 工具 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const todayKey = () => new Date().toISOString().slice(0, 10);
+function hashPw(str){ let h = 5381; const s = "lv·" + str; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return "h" + h.toString(36); }
+function toast(msg, type){ const t = document.createElement("div"); t.className = "toast " + (type || ""); t.textContent = msg; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transition = ".3s"; setTimeout(() => t.remove(), 320); }, 2600); }
+function fmtDate(ts){ const d = new Date(ts); return `${d.getMonth() + 1}月${d.getDate()}日`; }
+const XP = { word: 2, grammar: 10, listen: 10, speak: 6 };
+
+/* ---------- 静态数据 ---------- */
+const LANGS = {
+  en: { name: "英语", flag: "🇬🇧", speech: "en-US", learners: "12.8 万人在学", color: "#5b5ce2" },
+  ja: { name: "日语", flag: "🇯🇵", speech: "ja-JP", learners: "8.3 万人在学", color: "#ec4899" },
+  ko: { name: "韩语", flag: "🇰🇷", speech: "ko-KR", learners: "5.6 万人在学", color: "#06b6d4" },
+};
+const LEVELS = [
+  { id: "A1", name: "入门启航", desc: "零基础起步：问候、数字与最基础的高频表达", color: "#10b981" },
+  { id: "A2", name: "基础进阶", desc: "应对旅行、点餐等日常场景的实用会话", color: "#06b6d4" },
+  { id: "B1", name: "流利过渡", desc: "表达观点、描述经历，迈向独立交流", color: "#f59e0b" },
+  { id: "B2", name: "熟练运用", desc: "讨论抽象话题，理解复杂文章（内容筹备中）", color: "#f97316", locked: true },
+  { id: "C1", name: "精通之路", desc: "接近母语者的流畅与精准表达（内容筹备中）", color: "#ef4444", locked: true },
+];
+
+const COURSES = {
+en: {
+  A1: [
+    { id: "en-a1-u1", title: "Greetings · 打招呼", vocab: [
+      {t:"hello", p:"/həˈloʊ/", m:"你好"},{t:"morning", p:"/ˈmɔːrnɪŋ/", m:"早晨"},{t:"name", p:"/neɪm/", m:"名字"},
+      {t:"nice", p:"/naɪs/", m:"愉快的"},{t:"meet", p:"/miːt/", m:"遇见"},{t:"goodbye", p:"/ˌɡʊdˈbaɪ/", m:"再见"},
+      {t:"thank", p:"/θæŋk/", m:"感谢"},{t:"please", p:"/pliːz/", m:"请"}],
+      grammar: [
+        {q:"___ name is Li Ming.", o:["My","Me","I","Mine"], a:0, tip:"形容词性物主代词 my 后接名词：My name is… «我的名字是…»"},
+        {q:"Nice ___ you!", o:["to meet","meet","meeting","met"], a:0, tip:"Nice to meet you! 是初次见面的固定问候语。"},
+        {q:"— How are you? — I'm ___, thank you.", o:["fine","fun","five","find"], a:0, tip:"I'm fine, thank you. 是最标准的回答。"}],
+      listen: [
+        {t:"Good morning!", o:["Good morning!","Good night!","Goodbye!"], a:0},
+        {t:"What is your name?", o:["What is your name?","Where is your home?","Who is your friend?"], a:0}],
+      speak: [
+        {t:"Hello, nice to meet you.", hint:"初次见面问候语，注意 nice 的 /aɪ/ 双元音"},
+        {t:"Thank you very much.", hint:"thank 咬舌音 /θ/，very 上齿轻触下唇"}]},
+    { id: "en-a1-u2", title: "Numbers & Daily · 数字与日常", vocab: [
+      {t:"one", p:"/wʌn/", m:"一"},{t:"two", p:"/tuː/", m:"二"},{t:"time", p:"/taɪm/", m:"时间"},
+      {t:"day", p:"/deɪ/", m:"天；白天"},{t:"week", p:"/wiːk/", m:"周"},{t:"eat", p:"/iːt/", m:"吃"},
+      {t:"drink", p:"/drɪŋk/", m:"喝"},{t:"sleep", p:"/sliːp/", m:"睡觉"}],
+      grammar: [
+        {q:"I ___ up at seven every day.", o:["get","gets","getting","got"], a:0, tip:"主语 I 是第一人称，一般现在时动词用原形。"},
+        {q:"She ___ breakfast at eight.", o:["has","have","having","haves"], a:0, tip:"第三人称单数 she 后动词要变形：have → has。"},
+        {q:"It's nine ___ the morning.", o:["in","on","at","of"], a:0, tip:"in the morning/afternoon 是固定搭配，具体到某天某时刻才用 at/on。"}],
+      listen: [
+        {t:"I drink water every day.", o:["I drink water every day.","I drink milk every day.","I eat bread every day."], a:0},
+        {t:"See you next week.", o:["See you next week.","See you tomorrow.","See you later."], a:0}],
+      speak: [
+        {t:"I get up at seven o'clock.", hint:"数字 seven 重读，o'clock 弱读"},
+        {t:"What time is it now?", hint:"疑问词 what 要重读，句尾语调下降"}]},
+  ],
+  A2: [
+    { id: "en-a2-u1", title: "Travel · 旅行出行", vocab: [
+      {t:"ticket", p:"/ˈtɪkɪt/", m:"票"},{t:"airport", p:"/ˈerpɔːrt/", m:"机场"},{t:"hotel", p:"/hoʊˈtel/", m:"酒店"},
+      {t:"luggage", p:"/ˈlʌɡɪdʒ/", m:"行李"},{t:"map", p:"/mæp/", m:"地图"},{t:"train", p:"/treɪn/", m:"火车"},
+      {t:"book", p:"/bʊk/", m:"预订"},{t:"arrive", p:"/əˈraɪv/", m:"到达"}],
+      grammar: [
+        {q:"I ___ a hotel near the station last night.", o:["booked","book","booking","books"], a:0, tip:"last night 表示过去，动词用过去式 booked。"},
+        {q:"The train ___ at platform 3.", o:["arrives","arrive","arriving","is arrive"], a:0, tip:"the train 是第三人称单数，一般现在时加 -s。"},
+        {q:"Could you tell me where ___?", o:["the gate is","is the gate","the gate?","gate is"], a:0, tip:"宾语从句用陈述语序：where the gate is，不要倒装。"}],
+      listen: [
+        {t:"Where can I buy a ticket?", o:["Where can I buy a ticket?","Where can I book a hotel?","When does the train arrive?"], a:0},
+        {t:"My luggage is very heavy.", o:["My luggage is very heavy.","My hotel is very nice.","My ticket is in my bag."], a:0}],
+      speak: [
+        {t:"Excuse me, how do I get to the airport?", hint:"礼貌问路句型，excuse me 轻快带过"},
+        {t:"I'd like to book a room for two nights.", hint:"I'd like to 连读，注意 nights 的 /ts/"}]},
+    { id: "en-a2-u2", title: "Food & Ordering · 美食点餐", vocab: [
+      {t:"menu", p:"/ˈmenjuː/", m:"菜单"},{t:"order", p:"/ˈɔːrdər/", m:"点单；订购"},{t:"delicious", p:"/dɪˈlɪʃəs/", m:"美味的"},
+      {t:"spicy", p:"/ˈspaɪsi/", m:"辣的"},{t:"bill", p:"/bɪl/", m:"账单"},{t:"recommend", p:"/ˌrekəˈmend/", m:"推荐"},
+      {t:"vegetable", p:"/ˈvedʒtəbl/", m:"蔬菜"},{t:"dessert", p:"/dɪˈzɜːrt/", m:"甜点"}],
+      grammar: [
+        {q:"This soup tastes ___.", o:["delicious","deliciously","well","goodly"], a:0, tip:"taste 是系动词，后接形容词作表语，不用副词。"},
+        {q:"Could we have the ___, please?", o:["bill","ball","bell","bowl"], a:0, tip:"买单说 Have the bill, please.（英式也常说 the cheque）。"},
+        {q:"I'd like ___ orange juice.", o:["an","a","the","some of"], a:0, tip:"orange 以元音音素开头，用 an。"}],
+      listen: [
+        {t:"What would you like to order?", o:["What would you like to order?","What do you want to eat?","Would you like some water?"], a:0},
+        {t:"The dessert here is amazing.", o:["The dessert here is amazing.","The dinner here is amazing.","The service here is amazing."], a:0}],
+      speak: [
+        {t:"Could I see the menu, please?", hint:"could 语气委婉，句尾 please 上扬或下降均可"},
+        {t:"Everything looks delicious!", hint:"everything 重音在开头，句尾下降"}]},
+  ],
+  B1: [
+    { id: "en-b1-u1", title: "Work & Opinions · 职场与观点", vocab: [
+      {t:"project", p:"/ˈprɑːdʒekt/", m:"项目"},{t:"deadline", p:"/ˈdedlaɪn/", m:"截止日期"},{t:"colleague", p:"/ˈkɑːliːɡ/", m:"同事"},
+      {t:"experience", p:"/ɪkˈspɪriəns/", m:"经验"},{t:"opinion", p:"/əˈpɪnjən/", m:"观点"},{t:"suggest", p:"/səˈdʒest/", m:"建议"},
+      {t:"improve", p:"/ɪmˈpruːv/", m:"改进"},{t:"achieve", p:"/əˈtʃiːv/", m:"实现"}],
+      grammar: [
+        {q:"By the time I arrived, they ___ the meeting.", o:["had finished","have finished","finished","were finishing"], a:0, tip:"过去完成时 had done 表示«过去的过去»。"},
+        {q:"If I ___ more time, I would join the project.", o:["had","have","will have","would have"], a:0, tip:"第二条件句（虚拟）：If + 过去式, would + 动词原形。"},
+        {q:"She suggested ___ the plan again.", o:["reviewing","to review","review","reviewed"], a:0, tip:"suggest 后接动名词 doing，不接 to do。"}],
+      listen: [
+        {t:"In my opinion, the deadline is too tight.", o:["In my opinion, the deadline is too tight.","In my opinion, the budget is too small.","I think the deadline is fine."], a:0},
+        {t:"We need to improve communication within the team.", o:["We need to improve communication within the team.","We need to increase communication with clients.","We finished the project within a week."], a:0}],
+      speak: [
+        {t:"I see your point, but I have a different opinion.", hint:"委婉反驳句式，but 前稍作停顿"},
+        {t:"Let's schedule a meeting to discuss the details.", hint:"let's 后接动词原形，details 重音在前"}]},
+  ],
+  A2x: [], B1x: []
+},
+ja: {
+  A1: [
+    { id: "ja-a1-u1", title: "あいさつ · 打招呼", vocab: [
+      {t:"こんにちは", p:"konnichiwa", m:"你好（白天）"},{t:"おはよう", p:"ohayō", m:"早上好"},{t:"こんばんは", p:"konbanwa", m:"晚上好"},
+      {t:"ありがとう", p:"arigatō", m:"谢谢"},{t:"すみません", p:"sumimasen", m:"不好意思；劳驾"},{t:"さようなら", p:"sayōnara", m:"再见"},
+      {t:"お名前", p:"onamae", m:"名字（敬语）"},{t:"はじめまして", p:"hajimemashite", m:"初次见面"}],
+      grammar: [
+        {q:"わたし___ 李です。", o:["は","が","を","に"], a:0, tip:"主题助词「は」读作 wa，用于提示话题：わたしは…です。"},
+        {q:"こちら___ 田中さんです。", o:["は","も","へ","で"], a:0, tip:"介绍他人时用「こちらは～です」。"},
+        {q:"「はじめまして」的下一句通常是？", o:["どうぞよろしく","さようなら","おはよう","いただきます"], a:0, tip:"初次见面后说「どうぞよろしくお願いします」表示请多关照。"}],
+      listen: [
+        {t:"ありがとうございます。", o:["ありがとうございます。","おはようございます。","すみません。"], a:0},
+        {t:"お名前は何ですか。", o:["お名前は何ですか。","お仕事は何ですか。","お元気ですか。"], a:0}],
+      speak: [
+        {t:"はじめまして、李です。", hint:"注意音拍：ha-ji-me-ma-shi-te 共 7 拍"},
+        {t:"どうぞよろしくお願いします。", hint:"どうぞ 轻快，よろしく 重读"}]},
+    { id: "ja-a1-u2", title: "数字と時間 · 数字与时间", vocab: [
+      {t:"いち", p:"ichi", m:"一"},{t:"に", p:"ni", m:"二"},{t:"じかん", p:"jikan", m:"时间"},
+      {t:"きょう", p:"kyō", m:"今天"},{t:"あした", p:"ashita", m:"明天"},{t:"ごはん", p:"gohan", m:"米饭；饭"},
+      {t:"みず", p:"mizu", m:"水"},{t:"がっこう", p:"gakkō", m:"学校"}],
+      grammar: [
+        {q:"今___何時ですか。", o:["（不填）","は","を","が"], a:0, tip:"「今（いま）」单独作时间状语时不加助词：今、何時ですか。"},
+        {q:"7時___起きます。", o:["に","で","へ","を"], a:0, tip:"具体时刻后加助词「に」：7時に起きます。"},
+        {q:"「9:00」的正确读法是？", o:["くじ","きゅうじ","ここのじ","くじかん"], a:0, tip:"9 点读「くじ」，4 点读「よじ」，是特殊读法。"}],
+      listen: [
+        {t:"あした学校へ行きます。", o:["あした学校へ行きます。","きょう学校へ行きます。","あした会社へ行きます。"], a:0},
+        {t:"水を飲みます。", o:["水を飲みます。","ごはんを食べます。","お茶を飲みます。"], a:0}],
+      speak: [
+        {t:"いま、何時ですか。", hint:"何時（なんじ）是促音+疑问，不要读成「なにじ」"},
+        {t:"毎朝七時に起きます。", hint:"まいあさ 三拍流畅，しちに 重读"}]},
+  ],
+  A2: [
+    { id: "ja-a2-u1", title: "旅行 · 旅行出行", vocab: [
+      {t:"きっぷ", p:"kippu", m:"票"},{t:"えき", p:"eki", m:"车站"},{t:"ホテル", p:"hoteru", m:"酒店"},
+      {t:"にもつ", p:"nimotsu", m:"行李"},{t:"ちず", p:"chizu", m:"地图"},{t:"よやく", p:"yoyaku", m:"预约"},
+      {t:"しんかんせん", p:"shinkansen", m:"新干线"},{t:"おくれます", p:"okuremasu", m:"迟到；晚点"}],
+      grammar: [
+        {q:"東京___行きたいです。", o:["へ","を","が","の"], a:0, tip:"表示移动方向用「へ」（也可用に）：東京へ行きます。"},
+        {q:"ホテル___予約しました。", o:["を","が","に","へ"], a:0, tip:"「を」标记动作对象：チケットを予約する。"},
+        {q:"電車が___、困りました。", o:["遅れて","遅れていて","遅れても","遅れたら"], a:0, tip:"「て形」表原因先后：遅れて、困りました。"}],
+      listen: [
+        {t:"すみません、切符はどこで買いますか。", o:["すみません、切符はどこで買いますか。","すみません、駅はどこですか。","すみません、何時ですか。"], a:0},
+        {t:"新幹線で東京へ行きます。", o:["新幹線で東京へ行きます。","飛行機で東京へ行きます。","バスで東京へ行きます。"], a:0}],
+      speak: [
+        {t:"予約を変更したいのですが。", hint:"たい の后接のですが 表委婉请求"},
+        {t:"荷物を預かってもらえますか。", hint:"てもらえますか 是礼貌请求句型"}]},
+    { id: "ja-a2-u2", title: "食事 · 美食用餐", vocab: [
+      {t:"メニュー", p:"menyū", m:"菜单"},{t:"おいしい", p:"oishii", m:"好吃的"},{t:"からい", p:"karai", m:"辣的"},
+      {t:"お会計", p:"okaikei", m:"结账"},{t:"さしみ", p:"sashimi", m:"生鱼片"},{t:"ラーメン", p:"rāmen", m:"拉面"},
+      {t:"おすすめ", p:"osusume", m:"推荐"},{t:"いただきます", p:"itadakimasu", m:"我开动了"}],
+      grammar: [
+        {q:"このラーメン___おいしいです。", o:["は","が","を","に"], a:0, tip:"评价某物整体性质用「は」提示主题。"},
+        {q:"おすすめ___何ですか。", o:["は","を","の","で"], a:0, tip:"「AはBです」句型：推荐的是什么呢？"},
+        {q:"食べる___、お会計をお願いします。", o:["前に","後で","とき","ながら"], a:0, tip:"「动词基本形+前に」表示在做某事之前。"}],
+      listen: [
+        {t:"おすすめの料理は何ですか。", o:["おすすめの料理は何ですか。","おいしい料理を作ります。","日本料理が好きです。"], a:0},
+        {t:"お会計をお願いします。", o:["お会計をお願いします。","お水をお願いします。","お願いがあります。"], a:0}],
+      speak: [
+        {t:"メニューを見せてください。", hint:"見せて 是「让看」，ください 前接て形"},
+        {t:"とてもおいしかったです。", hint:"过去式おいしかった，与英语 delicious! 相同的赞叹"}]},
+  ],
+  B1: [
+    { id: "ja-b1-u1", title: "仕事と意見 · 职场与观点", vocab: [
+      {t:"しごと", p:"shigoto", m:"工作"},{t:"かいぎ", p:"kaigi", m:"会议"},{t:"けいけん", p:"keiken", m:"经验"},
+      {t:"いけん", p:"iken", m:"意见"},{t:"ていあん", p:"teian", m:"提案"},{t:"しめきり", p:"shimekiri", m:"截止日期"},
+      {t:"かんがえます", p:"kangaemasu", m:"思考"},{t:"ずっと", p:"zutto", m:"一直；…得多"}],
+      grammar: [
+        {q:"私___思います。", o:["は","が","を","に"], a:0, tip:"表达观点：私は～と思います。"},
+        {q:"時間___なかったら、断ります。", o:["が","は","を","も"], a:0, tip:"ない形前用「が」：時間がない → 没有时间。"},
+        {q:"会議に___、準備してください。", o:["出る前に","出った前に","出た後で","出るの"], a:0, tip:"「动词基本形+前に」：开会之前请做好准备。"}],
+      listen: [
+        {t:"私の意見は少し違います。", o:["私の意見は少し違います。","私の意見は同じです。","意見を聞かせてください。"], a:0},
+        {t:"締め切りは来週の金曜日です。", o:["締め切りは来週の金曜日です。","締め切りは今週の金曜日です。","会議は来週の金曜日です。"], a:0}],
+      speak: [
+        {t:"私の考えでは、この提案は良いと思います。", hint:"考えでは 的 で 表依据，语速平稳"},
+        {t:"もう一度確認していただけますか。", hint:"いただきますか 是高度敬语请求"}]},
+  ],
+},
+ko: {
+  A1: [
+    { id: "ko-a1-u1", title: "인사 · 打招呼", vocab: [
+      {t:"안녕하세요", p:"annyeonghaseyo", m:"你好"},{t:"감사합니다", p:"gamsahamnida", m:"谢谢"},{t:"죄송합니다", p:"joesonghamnida", m:"对不起"},
+      {t:"안녕히 가세요", p:"annyeonghi gaseyo", m:"再见（对走的人）"},{t:"이름", p:"ireum", m:"名字"},{t:"처음 뵙겠습니다", p:"cheoeum boepgetseumnida", m:"初次见面"},
+      {t:"네", p:"ne", m:"是"},{t:"아니요", p:"aniyo", m:"不是"}],
+      grammar: [
+        {q:"저___ 김민수입니다.", o:["는","를","이","에"], a:0, tip:"「는/은」是主题助词：저는…입니다 我是…。"},
+        {q:"이름___ 뭐예요?", o:["가","는","를","에서"], a:0, tip:"이름 无收音，主格助词用「가」。"},
+        {q:"「감사합니다」的意思是？", o:["谢谢","对不起","你好","再见"], a:0, tip:"감사(感谢)+합니다（正式敬语）＝谢谢。"}],
+      listen: [
+        {t:"안녕히 가세요!", o:["안녕히 가세요!","안녕하세요!","감사합니다!"], a:0},
+        {t:"이름이 뭐예요?", o:["이름이 뭐예요?","직업이 뭐예요?","취미가 뭐예요?"], a:0}],
+      speak: [
+        {t:"안녕하세요, 반갑습니다.", hint:"안녕하세요 的 yo 上扬，表示友好"},
+        {t:"감사합니다, 선생님.", hint:"합니다 要发得饱满有力"}]},
+    { id: "ko-a1-u2", title: "숫자와 일상 · 数字与日常", vocab: [
+      {t:"하나", p:"hana", m:"一"},{t:"둘", p:"dul", m:"二"},{t:"시간", p:"sigan", m:"时间"},
+      {t:"오늘", p:"oneul", m:"今天"},{t:"내일", p:"naeil", m:"明天"},{t:"밥", p:"bap", m:"饭"},
+      {t:"물", p:"mul", m:"水"},{t:"학교", p:"hakgyo", m:"学校"}],
+      grammar: [
+        {q:"밥___ 먹어요.", o:["을","는","이","에"], a:0, tip:"밥 有收音，宾格助词用「을」；无收音用「를」。"},
+        {q:"내일 학교___ 가요.", o:["에","에서","을","가"], a:0, tip:"「에」表示去的方向/目的地。"},
+        {q:"지금 몇___예요?", o:["시","분","일","년"], a:0, tip:"问几点用 몇 시예요，问几分用 몇 분。"}],
+      listen: [
+        {t:"오늘 뭐 먹어요?", o:["오늘 뭐 먹어요?","내일 뭐 해요?","지금 어디가요?"], a:0},
+        {t:"물 좀 주세요.", o:["물 좀 주세요.","밥 좀 주세요.","시간 좀 주세요."], a:0}],
+      speak: [
+        {t:"지금 몇 시예요?", hint:"몇 시 连读成 [먿씨]"},
+        {t:"오늘은 학교에 안 가요.", hint:"은 有收音时的主题助词，안 表否定"}]},
+  ],
+  A2: [
+    { id: "ko-a2-u1", title: "여행 · 旅行出行", vocab: [
+      {t:"표", p:"pyo", m:"票"},{t:"역", p:"yeok", m:"车站"},{t:"호텔", p:"hotel", m:"酒店"},
+      {t:"짐", p:"jim", m:"行李"},{t:"지도", p:"jido", m:"地图"},{t:"예약", p:"yeyak", m:"预约"},
+      {t:"비행기", p:"bihaenggi", m:"飞机"},{t:"공항", p:"gonghang", m:"机场"}],
+      grammar: [
+        {q:"부산___ 가고 싶어요.", o:["에","를","이","도"], a:0, tip:"「가고 싶다」前目的地用「에」。"},
+        {q:"표를 어디서 ___요?", o:["사","가","먹","봐"], a:0, tip:"买票：사다 → 사요。"},
+        {q:"비행기___ 두 시간 걸려요.", o:["으로","에서","를","가"], a:0, tip:"交通工具+「으로/로」表手段：坐飞机。"}],
+      listen: [
+        {t:"공항까지 어떻게 가요?", o:["공항까지 어떻게 가요?","공항에서 뭐 해요?","공항이 어디예요?"], a:0},
+        {t:"호텔을 예약했어요.", o:["호텔을 예약했어요.","비행기를 예약했어요.","식당을 예약했어요."], a:0}],
+      speak: [
+        {t:"서울까지 표 한 장 주세요.", hint:"한 장 一张，量词 장 用于扁平物"},
+        {t:"짐을 맡길 수 있어요?", hint:"-(으)ㄹ 수 있어요 表能力/可能"}]},
+    { id: "ko-a2-u2", title: "음식 · 美食用餐", vocab: [
+      {t:"메뉴", p:"menyu", m:"菜单"},{t:"맛있다", p:"masitda", m:"好吃"},{t:"매워요", p:"maewoyo", m:"辣"},
+      {t:"계산", p:"gyesan", m:"结账"},{t:"김치", p:"kimchi", m:"泡菜"},{t:"불고기", p:"bulgogi", m:"烤肉"},
+      {t:"추천", p:"chucheon", m:"推荐"},{t:"잘 먹겠습니다", p:"jal meokgetseumnida", m:"我开动了"}],
+      grammar: [
+        {q:"이 김치찌개는 정말 ___요.", o:["맛있","맛없","맵","달"], a:0, tip:"맛있다 收音后的变形：맛있어요。"},
+        {q:"계산___ 할게요.", o:["은","를","이","이나"], a:0, tip:"계산 有收音，主题助词用「은」。"},
+        {q:"뭐를 ___으세요?", o:["추천하","맛있하","먹었하","좋아하"], a:0, tip:"추천하다 + -(으)세요：请推荐点什么？"}],
+      listen: [
+        {t:"이 식당 뭐가 맛있어요?", o:["이 식당 뭐가 맛있어요?","이 식당 어디예요?","이 식당 비싸요?"], a:0},
+        {t:"계산해 주세요.", o:["계산해 주세요.","포장해 주세요.","앉아 주세요."], a:0}],
+      speak: [
+        {t:"주문할게요, 불고기 하나요.", hint:"주문하다 点单 + 할게요 表决定"},
+        {t:"너무 매워서 못 먹겠어요.", hint:"-아서 表原因：太辣了所以吃不了"}]},
+  ],
+  B1: [
+    { id: "ko-b1-u1", title: "일과 의견 · 职场与观点", vocab: [
+      {t:"회의", p:"hoeui", m:"会议"},{t:"경험", p:"gyeongheom", m:"经验"},{t:"의견", p:"uigyeon", m:"意见"},
+      {t:"마감", p:"magam", m:"截止"},{t:"제안", p:"jean", m:"提案"},{t:"개선", p:"gaeseon", m:"改善"},
+      {t:"생각하다", p:"saenggakhada", m:"思考；认为"},{t:"물론", p:"mullon", m:"当然"}],
+      grammar: [
+        {q:"저는 이 계획___ 좋다고 생각해요.", o:["이","를","에","도"], a:0, tip:"「좋다고 생각해요」前主语用「이/가」。"},
+        {q:"경험이 ___으면 좋겠어요.", o:["많","많았","많을","많게"], a:0, tip:"「-(으)면 좋겠다」表愿望：要是…就好了。"},
+        {q:"회의___ 끝나면 연락드릴게요.", o:["가","를","에","만"], a:0, tip:"회의가 끝나다 会议结束，主格用「가」。"}],
+      listen: [
+        {t:"저는 다른 의견이 있어요.", o:["저는 다른 의견이 있어요.","저는 같은 의견이에요.","의견을 말해 주세요."], a:0},
+        {t:"마감일은 다음 주 수요일이에요.", o:["마감일은 다음 주 수요일이에요.","마감일은 이번 주 금요일이에요.","회의는 다음 주 수요일이에요."], a:0}],
+      speak: [
+        {t:"제 생각에는 좀 더 검토가 필요해요.", hint:"제 생각에는 我认为，语速沉稳"},
+        {t:"빠른 시일 내에 개선하겠습니다.", hint:"正式承诺语气，겠습니다 收尾有力"}]},
+  ],
+}
+};
+
+/* 成就定义 */
+const ACH = [
+  { id: "first_login", icon: "🌱", name: "启程之星", desc: "注册加入 LinguaVerse" },
+  { id: "first_lesson", icon: "📖", name: "开卷有益", desc: "完成第一个单元的学习" },
+  { id: "xp_100", icon: "⚡", name: "能量新星", desc: "累计获得 100 XP" },
+  { id: "xp_500", icon: "🔥", name: "学习狂人", desc: "累计获得 500 XP" },
+  { id: "streak_3", icon: "📅", name: "三日之约", desc: "连续学习 3 天" },
+  { id: "streak_7", icon: "🏆", name: "七日坚守", desc: "连续学习 7 天" },
+  { id: "polyglot", icon: "🌍", name: "多语者", desc: "同时报名 2 门及以上语言课程" },
+  { id: "social", icon: "💬", name: "社区之声", desc: "在社区发布第一条帖子" },
+];
+
+/* 社区种子帖 */
+const SEED_POSTS = [
+  { id: "s1", user: "樱子", avatarColor: "#ec4899", time: Date.now() - 86400000 * 2, body: "日语 A1 的音拍练习太有用了！「こんにちは」我以前一直读成 6 拍，现在终于标准了。分享给大家：跟着口语跟读模块每天 10 分钟，一周就能听出差别～", likes: 24, liked: false, comments: [{ user: "Leo", text: "同感！跟读模块比我自己瞎练强多了" }, { user: "小海", text: "请问 B1 什么时候更新呀" }] },
+  { id: "s2", user: "Kevin老师", avatarColor: "#5b5ce2", time: Date.now() - 86400000, body: "给英语学习者的建议：听力训练不要贪多，一个句子反复听 3 遍再对照文本，比一口气听 20 个新句子有效得多。精听是王道！", likes: 41, liked: false, comments: [{ user: "阿真", text: "受教了，今晚就试试精听法" }] },
+  { id: "s3", user: "한국人の友", avatarColor: "#06b6d4", time: Date.now() - 3600000 * 5, body: "韩语 A2 的「-(으)ㄹ 수 있어요」句型卡片已上线，欢迎大家去单词记忆模块打卡。坚持第 14 天，从完全零基础到现在能点餐啦 🎉", likes: 18, liked: false, comments: [] },
+];
+
+/* 排行榜种子 */
+const SEED_LB = [
+  { user: "Kevin老师", xp: 3260 }, { user: "樱子", xp: 2870 }, { user: "한국人の友", xp: 2415 },
+  { user: "Leo", xp: 1980 }, { user: "小海", xp: 1655 }, { user: "阿真", xp: 1420 },
+  { user: "Momo", xp: 1180 }, { user: "Tony", xp: 960 },
+];
+
+/* ---------- 存储层 ---------- */
+const DB_KEY = "linguaverse_db_v1";
+function loadDB(){ try { return JSON.parse(localStorage.getItem(DB_KEY)) || { users: {}, session: null, posts: null }; } catch (e) { return { users: {}, session: null, posts: null }; } }
+function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+let db = loadDB();
+
+function curUser(){ return db.session ? db.users[db.session] : null; }
+function newUser(name, pw){
+  db.users[name] = {
+    name, pw: hashPw(pw), created: Date.now(), xp: 0,
+    days: {}, streak: 0, bestStreak: 0, ach: [],
+    enrolled: {}, progress: {}, moduleStat: { word: { c: 0, r: 0 }, grammar: { c: 0, r: 0 }, listen: { c: 0, r: 0 }, speak: { c: 0, r: 0 } },
+  };
+  return db.users[name];
+}
+function saveUser(u){ db.users[u.name] = u; saveDB(db); }
+
+/* XP / 连续天数 / 成就 */
+function gainXP(u, n){
+  u.xp += n;
+  const t = todayKey();
+  u.days[t] = (u.days[t] || 0) + n;
+  // 重算连续天数
+  let s = 0; const d = new Date();
+  for (;;) { const k = d.toISOString().slice(0, 10); if (u.days[k]) { s++; d.setDate(d.getDate() - 1); } else break; }
+  u.streak = s; u.bestStreak = Math.max(u.bestStreak || 0, s);
+  checkAch(u); saveUser(u);
+}
+function checkAch(u){
+  const has = id => u.ach.includes(id);
+  const add = id => { if (!has(id)) { u.ach.push(id); setTimeout(() => { toast(`🏅 成就解锁「${(ACH.find(a => a.id === id) || {}).name}」！`, "gold"); }, 400); } };
+  if (u.created) add("first_login");
+  if (u.xp >= 100) add("xp_100");
+  if (u.xp >= 500) add("xp_500");
+  if (u.streak >= 3) add("streak_3");
+  if (u.streak >= 7) add("streak_7");
+  if (Object.keys(u.enrolled || {}).length >= 2) add("polyglot");
+  const units = countUnits(u); if (units >= 1) add("first_lesson");
+}
+function countUnits(u){
+  let n = 0;
+  for (const lang in (u.progress || {})) for (const lv in u.progress[lang]) n += Object.keys(u.progress[lang][lv]).length;
+  return n;
+}
+/* 单元完成度：vocab/grammar/listen/speak 四项 */
+function unitRec(u, unit){ return ((((u.progress || {})[unit.lang] || {})[unit.lv] || {})[unit.id]) || {}; }
+function unitState(u, unit){
+  const st = ((u.progress || {})[(unit.lang)] || {})[(unit.lv)] || {};
+  const rec = st[unit.id] || {};
+  return {
+    vocab: (rec.vocab || []).length, grammar: (rec.grammar || []).length,
+    listen: (rec.listen || []).length, speak: (rec.speak || []).length,
+  };
+}
+function markDone(u, unit, mod, idx){
+  const rec = (u.progress[unit.lang] = u.progress[unit.lang] || {});
+  const lv = (rec[unit.lv] = rec[unit.lv] || {});
+  const r = (lv[unit.id] = lv[unit.id] || {});
+  r[mod] = r[mod] || [];
+  if (!r[mod].includes(idx)) r[mod].push(idx);
+}
+function isUnitDone(u, unit){
+  const s = unitState(u, unit);
+  return s.vocab >= unit.vocab.length && s.grammar >= unit.grammar.length && s.listen >= unit.listen.length && s.speak >= unit.speak.length;
+}
+function allUnitsOf(lang){
+  const arr = [];
+  LEVELS.forEach(lv => (COURSES[lang][lv.id] || []).forEach(un => arr.push(Object.assign({ lang, lv: lv.id }, un))));
+  return arr;
+}
+function levelDoneCount(u, lang, lvId){ return (COURSES[lang][lvId] || []).filter(un => isUnitDone(u, Object.assign({ lang, lv: lvId }, un))).length; }
+
+/* ---------- 路由 ---------- */
+const app = $("#app");
+let ui = { lang: null, lv: null, unitIdx: 0, module: "vocab", flashIdx: 0, flashFlip: false, quizIdx: 0, quizPick: -1, listenIdx: 0, listenPick: -1, speakIdx: 0, commTab: 0 };
+
+function nav(h){ const t = "#/" + String(h).replace(/^[#/]+/, ""); if (location.hash === t) route(); else location.hash = t; }
+function route(){
+  const h = location.hash.replace(/^#\/?/, "") || "home";
+  const [page, p1] = h.split("/");
+  ui.lang = p1 || ui.lang;
+  render(page);
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- 布局骨架 ---------- */
+function navHTML(page){
+  const u = curUser();
+  const links = [["home","首页"],["courses","课程中心"],["learn","开始学习"],["progress","学习进度"],["community","社区"],["achievements","成就"]];
+  return `<nav class="nav"><div class="wrap nav-in">
+    <a class="logo" href="#/"><span class="mark">L</span>LinguaVerse</a>
+    <div class="nav-links">${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}">${t}</a>`).join("")}</div>
+    <div class="nav-user">${u
+      ? `<span style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP</span><a class="avatar" title="${esc(u.name)}" href="#/progress">${esc(u.name[0].toUpperCase())}</a>`
+      : `<a class="btn btn-ghost btn-sm" href="#/login">登录</a><a class="btn btn-pri btn-sm" href="#/register">免费注册</a>`}</div>
+  </div></nav>`;
+}
+function footHTML(){ return `<div class="footer"><div class="wrap">LinguaVerse · 沉浸式多语言学习平台 — 英语 · 日语 · 韩语<br><span style="font-size:12px">数据保存在浏览器本地 · 单文件零依赖 · 可部署于 Cloudflare Pages</span></div></div>`; }
+function authGuard(page){
+  if (!curUser()) { toast("请先登录后再继续哦～", "bad"); nav("/login"); return false; }
+  return true;
+}
+
+/* ---------- 页面：首页 ---------- */
+function viewHome(){
+  return `${navHTML("home")}
+  <header class="hero"><div class="wrap hero-in">
+    <div>
+      <h1>用母语者的方式，<br>学一门新的语言</h1>
+      <p class="sub">LinguaVerse 提供英语、日语、韩语的分级沉浸式课程：单词记忆、语法练习、口语跟读、听力训练四大模块，配合智能进度追踪与个性化学习路径，让坚持不再困难。</p>
+      <div class="tags"><span class="tag">📖 分级课程体系</span><span class="tag">🎯 四大互动模块</span><span class="tag">📈 进度追踪</span><span class="tag">🏅 成就激励</span></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn btn-lg" style="background:#fff;color:var(--pri)" href="#/courses">免费开始学习</a>
+        <a class="btn btn-lg" style="background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)" href="#/learn">我有账号，继续学习</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="row"><b>🇬🇧 英语课程</b><span>A1 → C1 全阶体系</span></div>
+      <div class="row"><b>🇯🇵 日语课程</b><span>音拍跟读 · 场景会话</span></div>
+      <div class="row"><b>🇰🇷 韩语课程</b><span>韩剧级实用表达</span></div>
+      <div class="row"><b>🏅 成就与排行</b><span>和 26 万学习者一起进步</span></div>
+    </div>
+  </div></header>
+
+  <section class="section"><div class="wrap">
+    <div class="sec-head"><h2>选择你想学的语言</h2><p>每一门语言都配有完整分级路径与四大互动模块</p></div>
+    <div class="grid g3">
+      ${Object.entries(LANGS).map(([k, l]) => `
+      <a class="card lang-card" href="#/course/${k}">
+        <div class="flag">${l.flag}</div>
+        <h3 style="margin-top:8px">${l.name}</h3>
+        <p>从零基础到流利表达，按 CEFR 标准分级</p>
+        <div class="learners">👥 ${l.learners} <span class="pill pill-pri" style="margin-left:8px">A1-C1</span></div>
+      </a>`).join("")}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:10px"><div class="wrap">
+    <div class="sec-head"><h2>沉浸式学习闭环</h2><p>四步循环，每一课都完整走完「输入 → 理解 → 输出 → 反馈」</p></div>
+    <div class="grid g4">
+      <div class="card"><div class="icon-bub" style="background:#eef2ff">🃏</div><h3>单词记忆</h3><p>翻转卡片 + 主动回忆，认识/不认识自评，按遗忘节奏巩固高频词。</p></div>
+      <div class="card"><div class="icon-bub" style="background:#ecfdf5">✏️</div><h3>语法练习</h3><p>场景化选择题即时判分，每题配中文解析，做一道懂一道。</p></div>
+      <div class="card"><div class="icon-bub" style="background:#fdf2f8">🎙️</div><h3>口语跟读</h3><p>标准发音示范 + 麦克风跟读识别，练就自信开口。</p></div>
+      <div class="card"><div class="icon-bub" style="background:#ecfeff">🎧</div><h3>听力训练</h3><p>真实语速原声播放，听音选义，磨出好耳朵。</p></div>
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:10px"><div class="wrap">
+    <div class="grid g3">
+      <div class="card"><h3>📈 进度追踪</h3><p>XP 经验值、连续打卡天数、每周学习图表与模块正确率，进步看得见。</p></div>
+      <div class="card"><h3>🧭 个性化路径</h3><p>根据你的正确率与学习历史，智能推荐下一步最值得学的内容。</p></div>
+      <div class="card"><h3>💬 社区激励</h3><p>讨论区交流心得、排行榜良性比拼、8 枚成就徽章等你点亮。</p></div>
+    </div>
+  </div></section>
+  ${footHTML()}`;
+}
+
+/* ---------- 页面：课程中心 ---------- */
+function viewCourses(){
+  return `${navHTML("courses")}
+  <section class="section"><div class="wrap">
+    <div class="sec-head"><h2>课程中心</h2><p>CEFR 国际标准分级 · A1 入门 → C1 精通，按自己的节奏逐级解锁</p></div>
+    <div class="grid g3">
+      ${Object.entries(LANGS).map(([k, l]) => {
+        const u = curUser(); const enr = u && u.enrolled[k];
+        return `<a class="card lang-card" href="#/course/${k}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="flag">${l.flag}</div>${enr ? `<span class="pill pill-ok">已报名 · ${enr}</span>` : ""}</div>
+          <h3 style="margin-top:8px">${l.name}</h3>
+          <p>共 ${allUnitsOf(k).length} 个主题单元 · ${allUnitsOf(k).reduce((n, x) => n + x.vocab.length, 0)}+ 核心词汇</p>
+          <div class="learners">👥 ${l.learners}</div>
+        </a>`; }).join("")}
+    </div>
+  </div></section>${footHTML()}`;
+}
+
+/* ---------- 页面：课程详情（等级阶梯） ---------- */
+function viewCourse(lang){
+  const l = LANGS[lang]; if (!l) return viewHome();
+  const u = curUser();
+  const allLv = LEVELS.map(lv => {
+    const units = COURSES[lang][lv.id] || [];
+    const done = u ? levelDoneCount(u, lang, lv.id) : 0;
+    const enrolledLv = u && u.enrolled[lang] === lv.id;
+    let locked = lv.locked;
+    let doneAll = !lv.locked && units.length > 0 && done >= units.length;
+    return { ...lv, units, done, enrolledLv, doneAll };
+  });
+  return `${navHTML("course")}
+  <section class="section"><div class="wrap">
+    <a class="backlink" href="#/courses">← 返回课程中心</a>
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:6px">
+      <div style="font-size:44px">${l.flag}</div>
+      <div><h2 style="font-size:26px">${l.name} · 分级课程体系</h2>
+      <p style="color:var(--muted);font-size:14px">按等级依次解锁：完成当前等级全部单元后，即可挑战下一级</p></div>
+    </div>
+    <div class="ladder">
+      ${allLv.map(lv => `
+      <div class="lv-row ${lv.locked ? "locked" : ""}">
+        <div class="lv-badge" style="background:${lv.color}">${lv.id}<span style="font-size:10px;font-weight:600;opacity:.9">${lv.name}</span></div>
+        <div class="lv-info">
+          <h4>${esc(lv.desc)}</h4>
+          ${lv.locked ? `<p>🔒 该等级内容正在筹备中，敬请期待</p>` : `
+          <p>${lv.units.map(x => x.title).join(" · ") || "—"}</p>
+          <div class="lv-meta"><span>📚 ${lv.units.length} 个单元</span><span>✅ 已完成 ${lv.done}/${lv.units.length}</span>
+            <span class="bar" style="width:120px;margin-top:4px"><i style="width:${lv.units.length ? Math.round(lv.done / lv.units.length * 100) : 0}%"></i></span></div>`}
+        </div>
+        <div class="lv-act">
+          ${lv.locked ? `<span class="pill">即将上线</span>` : lv.enrolledLv
+            ? `<a class="btn btn-pri" href="#/learn/${lang}">继续学习</a>`
+            : lv.doneAll ? `<span class="pill pill-ok">已完成 🎉</span><button class="btn btn-ghost btn-sm" style="margin-left:8px" onclick="enrollLv('${lang}','${lv.id}')">复习</button>`
+            : `<button class="btn btn-pri" onclick="enrollLv('${lang}','${lv.id}')">${u ? "报名此等级" : "登录并报名"}</button>`}
+        </div>
+      </div>`).join("")}
+    </div>
+  </div></section>${footHTML()}`;
+}
+window.enrollLv = function(lang, lv){
+  const u = curUser();
+  if (!u) { toast("请先登录，再报名课程～", "bad"); nav("/login"); return; }
+  u.enrolled[lang] = lv; checkAch(u); saveUser(u);
+  toast(`🎉 已报名 ${LANGS[lang].name} ${lv}，开始学习吧！`, "ok");
+  nav(`/learn/${lang}`);
+};
+
+/* ---------- 页面：学习 ---------- */
+function currentUnit(){
+  const u = curUser(); if (!u || !ui.lang) return null;
+  const lv = u.enrolled[ui.lang] || LEVELS.find(l => COURSES[ui.lang][l.id] && COURSES[ui.lang][l.id].length).id;
+  const units = COURSES[ui.lang][lv] || [];
+  if (!units.length) return null;
+  // 默认跳到第一个未完成单元
+  let idx = units.findIndex(x => !isUnitDone(u, Object.assign({ lang: ui.lang, lv }, x)));
+  if (idx < 0) idx = 0;
+  return Object.assign({ lang: ui.lang, lv }, units[ui.unitIdx < units.length ? ui.unitIdx : idx]);
+}
+function viewLearn(){
+  if (!authGuard()) return "";
+  const u = curUser();
+  const langs = Object.keys(u.enrolled);
+  if (!ui.lang || !u.enrolled[ui.lang]) { if (langs.length) ui.lang = langs[0]; else { return `${navHTML("learn")}<section class="section"><div class="wrap"><div class="card" style="text-align:center;padding:56px"><h3>还没有报名课程</h3><p style="margin:10px 0 20px">先去课程中心选一门语言开始吧，推荐从 A1 入门启航开始～</p><a class="btn btn-pri" href="#/courses">去课程中心</a></div></div></section>${footHTML()}`; } }
+  const unit = currentUnit(); if (!unit) return viewHome();
+  const lvUnits = COURSES[ui.lang][unit.lv];
+  const l = LANGS[ui.lang];
+  const doneMods = (() => { const s = unitState(u, unit); return { vocab: s.vocab >= unit.vocab.length, grammar: s.grammar >= unit.grammar.length, listen: s.listen >= unit.listen.length, speak: s.speak >= unit.speak.length }; })();
+  const tabs = [["vocab","🃏 单词记忆"],["grammar","✏️ 语法练习"],["listen","🎧 听力训练"],["speak","🎙️ 口语跟读"]];
+  const modHTML = { vocab: modVocab(unit, doneMods.vocab), grammar: modGrammar(unit, doneMods.grammar), listen: modListen(unit, doneMods.listen), speak: modSpeak(unit, doneMods.speak) }[ui.module];
+  return `${navHTML("learn")}
+  <section class="section"><div class="wrap">
+    <div class="learn-head">
+      <div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="sel" onchange="switchLang(this.value)">${Object.keys(LANGS).map(k => `<option value="${k}" ${k === ui.lang ? "selected" : ""} ${u.enrolled[k] ? "" : "disabled"}>${LANGS[k].flag} ${LANGS[k].name}${u.enrolled[k] ? " · " + u.enrolled[k] : ""}</option>`).join("")}</select>
+          <select class="sel" onchange="switchUnit(+this.value)">${lvUnits.map((x, i) => `<option value="${i}" ${i === ui.unitIdx ? "selected" : ""}>单元 ${i + 1} · ${esc(x.title)}${isUnitDone(u, Object.assign({ lang: ui.lang, lv: unit.lv }, x)) ? " ✓" : ""}</option>`).join("")}</select>
+        </div>
+        <h2 style="margin-top:12px;font-size:22px">${l.flag} ${esc(unit.title)}</h2>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:4px">${l.name} ${unit.lv} · 完成四个模块即解锁本单元 ✓</p>
+      </div>
+      <div style="text-align:right"><b style="font-size:18px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">⚡ ${u.xp} XP</b><div style="font-size:12.5px;color:var(--muted)">🔥 连续 ${u.streak} 天</div></div>
+    </div>
+    <div class="tabs">${tabs.map(([id, t]) => `<button class="${ui.module === id ? "on" : ""} ${doneMods[id] ? "done" : ""}" onclick="setModule('${id}')">${t}</button>`).join("")}</div>
+    <div style="margin-top:24px">${modHTML}</div>
+  </div></section>${footHTML()}`;
+}
+window.switchLang = k => { ui.lang = k; ui.unitIdx = 0; ui.flashIdx = 0; ui.quizIdx = 0; ui.listenIdx = 0; ui.speakIdx = 0; route(); };
+window.switchUnit = i => { ui.unitIdx = i; ui.flashIdx = 0; ui.quizIdx = 0; ui.listenIdx = 0; ui.speakIdx = 0; route(); };
+window.setModule = function(m){
+  ui.module = m; ui.flashFlip = false;
+  const u = curUser(); const unit = currentUnit();
+  if (u && unit) {
+    const rec = unitRec(u, unit);
+    const firstUndone = (total, key) => { const done = rec[key] || []; for (let i = 0; i < total; i++) if (!done.includes(i)) return i; return 0; };
+    if (m === "vocab") ui.flashIdx = firstUndone(unit.vocab.length, "vocab");
+    if (m === "grammar") { ui.quizIdx = firstUndone(unit.grammar.length, "grammar"); ui.quizPick = -1; }
+    if (m === "listen") { ui.listenIdx = firstUndone(unit.listen.length, "listen"); ui.listenPick = -1; }
+    if (m === "speak") ui.speakIdx = firstUndone(unit.speak.length, "speak");
+  }
+  route();
+};
+
+/* --- 模块1：单词记忆（翻转卡） --- */
+function modVocab(unit, done){
+  const u = curUser(); const st = unitState(u, unit);
+  const i = Math.min(ui.flashIdx, unit.vocab.length - 1);
+  const w = unit.vocab[i];
+  return `<div class="flash-wrap">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span>第 ${i + 1} / ${unit.vocab.length} 张</span><span>已认识 ${st.vocab} 个</span></div>
+    <div class="flash ${ui.flashFlip ? "flip" : ""}" onclick="flipCard()"><div class="flash-in">
+      <div class="flash-face flash-front"><div class="word">${esc(w.t)}</div><div class="phon">${esc(w.p)}</div><div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
+      <div class="flash-face flash-back"><div class="m">${esc(w.m)}</div><div class="s">${esc(w.t)} · ${esc(w.p)}</div></div>
+    </div></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakWord('${esc(w.t).replace(/'/g, "\\'")}')">🔊 听发音</button></div>
+    <div class="rate-row">
+      <button class="rate rate-no" onclick="rateWord(false)">😵 还不认识</button>
+      <button class="rate rate-yes" onclick="rateWord(true)">😎 我认识了</button>
+    </div>
+    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:14px">🎉 本模块已全部完成，可随时回来复习</p>` : ""}
+  </div>`;
+}
+window.flipCard = () => { ui.flashFlip = !ui.flashFlip; route(); };
+window.speakWord = t => tts(t, LANGS[ui.lang].speech);
+window.rateWord = function(ok){
+  const u = curUser(); const unit = currentUnit(); if (!unit) return;
+  const i = ui.flashIdx;
+  markDone(u, unit, "vocab", i);
+  u.moduleStat.word.c++; if (ok) u.moduleStat.word.r++;
+  gainXP(u, ok ? XP.word : 1);
+  ui.flashFlip = false;
+  if (ui.flashIdx < unit.vocab.length - 1) { ui.flashIdx++; toast(ok ? `+${XP.word} XP` : "+1 XP，回卡片再见它一次～"); }
+  else { toast("🃏 单词记忆模块完成！", "ok"); checkAch(u); }
+  route();
+};
+
+/* --- 模块2：语法练习 --- */
+function modGrammar(unit, done){
+  const i = Math.min(ui.quizIdx, unit.grammar.length - 1);
+  const q = unit.grammar[i]; const picked = ui.quizPick;
+  const revealed = picked >= 0;
+  return `<div style="max-width:620px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:12px"><span>第 ${i + 1} / ${unit.grammar.length} 题</span><span>选择正确答案</span></div>
+    <div class="card" style="font-size:17px;font-weight:700;margin-bottom:18px">${esc(q.q)}</div>
+    ${q.o.map((o, oi) => `<button class="q-opt ${revealed ? (oi === q.a ? "right" : oi === picked ? "wrong" : "") : ""}" ${revealed ? "disabled" : ""} onclick="pickGrammar(${oi})">${String.fromCharCode(65 + oi)}. ${esc(o)}</button>`).join("")}
+    ${revealed ? `<div class="tip-box">💡 ${esc(q.tip)}</div>
+      <div style="text-align:center;margin-top:16px"><button class="btn btn-pri" onclick="nextGrammar()">${i < unit.grammar.length - 1 ? "下一题 →" : "完成练习 🎉"}</button></div>` : ""}
+    ${done && !revealed ? `<p style="text-align:center;color:var(--ok);font-size:13px">🎉 本模块已全部完成，可反复练习巩固</p>` : ""}
+  </div>`;
+}
+window.pickGrammar = function(oi){
+  const u = curUser(); const unit = currentUnit(); if (!unit) return;
+  const q = unit.grammar[ui.quizIdx];
+  ui.quizPick = oi;
+  markDone(u, unit, "grammar", ui.quizIdx);
+  u.moduleStat.grammar.c++;
+  if (oi === q.a) { u.moduleStat.grammar.r++; gainXP(u, XP.grammar); toast(`回答正确！+${XP.grammar} XP`, "ok"); }
+  else { gainXP(u, 1); toast("答错啦，看看解析记住它～", "bad"); }
+  route();
+};
+window.nextGrammar = function(){
+  const unit = currentUnit(); ui.quizPick = -1;
+  if (ui.quizIdx < unit.grammar.length - 1) ui.quizIdx++;
+  else { toast("✏️ 语法练习模块完成！", "ok"); checkAch(curUser()); }
+  route();
+};
+
+/* --- 模块3：听力训练 --- */
+function modListen(unit, done){
+  const i = Math.min(ui.listenIdx, unit.listen.length - 1);
+  const q = unit.listen[i]; const picked = ui.listenPick; const revealed = picked >= 0;
+  return `<div style="max-width:620px;margin:0 auto;text-align:center">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">第 ${i + 1} / ${unit.listen.length} 题 · 点击喇叭听原声，选择你听到的话</div>
+    <button class="mic-dot" onclick="playListen()" title="播放原声">🔊</button>
+    <div style="font-size:12.5px;color:var(--muted);margin:8px 0 20px">可以反复播放，听清每一个音节</div>
+    ${q.o.map((o, oi) => `<button class="q-opt ${revealed ? (oi === q.a ? "right" : oi === picked ? "wrong" : "") : ""}" style="text-align:left" ${revealed ? "disabled" : ""} onclick="pickListen(${oi})">${String.fromCharCode(65 + oi)}. ${esc(o)}</button>`).join("")}
+    ${revealed ? `<div class="tip-box" style="text-align:left">原文：${esc(q.t)}</div>
+      <div style="margin-top:16px"><button class="btn btn-pri" onclick="nextListen()">${i < unit.listen.length - 1 ? "下一题 →" : "完成训练 🎉"}</button></div>` : ""}
+    ${done && !revealed ? `<p style="color:var(--ok);font-size:13px">🎉 本模块已全部完成</p>` : ""}
+  </div>`;
+}
+window.playListen = function(){
+  const unit = currentUnit(); if (!unit) return;
+  const q = unit.listen[ui.listenIdx];
+  tts(q.t, LANGS[ui.lang].speech, { rate: 0.88 });
+};
+window.pickListen = function(oi){
+  const u = curUser(); const unit = currentUnit(); if (!unit) return;
+  const q = unit.listen[ui.listenIdx];
+  ui.listenPick = oi;
+  markDone(u, unit, "listen", ui.listenIdx);
+  u.moduleStat.listen.c++;
+  if (oi === q.a) { u.moduleStat.listen.r++; gainXP(u, XP.listen); toast(`听对了！+${XP.listen} XP`, "ok"); }
+  else { gainXP(u, 1); toast("再听一遍原文，加深印象～", "bad"); }
+  route();
+};
+window.nextListen = function(){
+  const unit = currentUnit(); ui.listenPick = -1;
+  if (ui.listenIdx < unit.listen.length - 1) ui.listenIdx++;
+  else { toast("🎧 听力训练模块完成！", "ok"); checkAch(curUser()); }
+  route();
+};
+
+/* --- 模块4：口语跟读 --- */
+function modSpeak(unit, done){
+  const i = Math.min(ui.speakIdx, unit.speak.length - 1);
+  const s = unit.speak[i];
+  const sr = window.SpeechRecognition || window.webkitSpeechRecognition;
+  return `<div class="speak-box">
+    <div style="font-size:13px;color:var(--muted)">第 ${i + 1} / ${unit.speak.length} 句</div>
+    <div class="speak-sent">${esc(s.t)}</div>
+    <div class="speak-hint">💡 ${esc(s.hint)}</div>
+    <div style="display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap">
+      <button class="mic-dot" onclick="playSpeak()" title="听示范发音">🔊</button>
+      ${sr ? `<button class="mic-dot" id="micBtn" onclick="startRec()" title="点击开始跟读">🎤</button>` : ""}
+    </div>
+    <div id="recResult" style="min-height:26px;margin-top:14px;font-size:14px;color:var(--muted)">${sr ? "先听示范，再点麦克风跟读" : "当前浏览器不支持语音识别，可听示范后自行跟读并自评"}</div>
+    <div class="rate-row" style="margin-top:16px">
+      <button class="rate rate-no" onclick="rateSpeak(false)">🔁 再练一次</button>
+      <button class="rate rate-yes" onclick="rateSpeak(true)">✅ 这句我读得不错</button>
+    </div>
+    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 本模块已全部完成</p>` : ""}
+  </div>`;
+}
+window.playSpeak = function(){
+  const unit = currentUnit(); if (!unit) return;
+  tts(unit.speak[ui.speakIdx].t, LANGS[ui.lang].speech, { rate: 0.85 });
+};
+window.startRec = function(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+  const btn = $("#micBtn"); if (!btn || btn.classList.contains("rec")) return;
+  const unit = currentUnit();
+  const rec = new SR(); rec.lang = LANGS[ui.lang].speech; rec.interimResults = false; rec.maxAlternatives = 3;
+  btn.classList.add("rec"); $("#recResult").textContent = "🎙️ 正在聆听，请大声跟读…";
+  rec.onresult = ev => {
+    const said = Array.from(ev.results[0]).map(r => r.transcript);
+    const target = unit.speak[ui.speakIdx].t.toLowerCase().replace(/[.,!?。、！？\s]/g, "");
+    const hit = said.some(x => { const c = x.toLowerCase().replace(/[.,!?。、！？\s]/g, ""); return target.includes(c) || c.includes(target) || sim(target, c) > 0.6; });
+    $("#recResult").innerHTML = hit
+      ? `<span style="color:var(--ok);font-weight:700">🎉 识别到：「${esc(said[0])}」 — 发音很棒！</span>`
+      : `<span style="color:var(--acc)">听到：「${esc(said[0])}」— 再对照示范练一遍试试？</span>`;
+  };
+  rec.onerror = () => { $("#recResult").textContent = "⚠️ 没听清，请检查麦克风权限后重试"; btn.classList.remove("rec"); };
+  rec.onend = () => { const b = $("#micBtn"); if (b) b.classList.remove("rec"); };
+  rec.start();
+};
+function sim(a, b){ // 粗略相似度（公共字符比例）
+  if (!a || !b) return 0; const set = new Set(a.split("")); let hit = 0; b.split("").forEach(c => { if (set.has(c)) hit++; });
+  return hit / Math.max(a.length, b.length);
+}
+window.rateSpeak = function(ok){
+  const u = curUser(); const unit = currentUnit(); if (!unit) return;
+  markDone(u, unit, "speak", ui.speakIdx);
+  u.moduleStat.speak.c++; if (ok) u.moduleStat.speak.r++;
+  gainXP(u, ok ? XP.speak : 1);
+  if (ui.speakIdx < unit.speak.length - 1) { ui.speakIdx++; toast(ok ? `+${XP.speak} XP` : "+1 XP"); }
+  else { toast("🎙️ 口语跟读模块完成！", "ok"); checkAch(u); }
+  route();
+};
+
+/* TTS 播放 */
+let voices = [];
+function loadVoices(){ voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
+if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function tts(text, lang, opt){
+  if (!window.speechSynthesis) { toast("当前浏览器不支持语音合成", "bad"); return; }
+  speechSynthesis.cancel();
+  const s = new SpeechSynthesisUtterance(text);
+  s.lang = lang; s.rate = (opt && opt.rate) || 1;
+  const v = voices.find(x => x.lang === lang) || voices.find(x => x.lang.startsWith(lang.slice(0, 2)));
+  if (v) s.voice = v;
+  speechSynthesis.speak(s);
+}
+
+/* ---------- 页面：学习进度 ---------- */
+function viewProgress(){
+  if (!authGuard()) return "";
+  const u = curUser();
+  const last7 = []; const max = Math.max(10, ...last7vals(u));
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const k = d.toISOString().slice(0, 10); last7.push({ k, label: `${d.getMonth() + 1}/${d.getDate()}`, v: (u.days[k] || 0) }); }
+  const wordsLearned = allUnitsOf(Object.keys(LANGS)[0]).reduce((n, un) => n + un.vocab.length, 0) * 0; // placeholder
+  let wordCnt = 0, lessonsDone = 0;
+  Object.keys(LANGS).forEach(lang => allUnitsOf(lang).forEach(un => { const s = unitState(u, un); wordCnt += s.vocab; if (isUnitDone(u, un)) lessonsDone++; }));
+  const acc = (() => { const m = u.moduleStat; const c = m.word.c + m.grammar.c + m.listen.c + m.speak.c, r = m.word.r + m.grammar.r + m.listen.r + m.speak.r; return c ? Math.round(r / c * 100) : 0; })();
+  const rec = recommend(u);
+  return `${navHTML("progress")}
+  <section class="section"><div class="wrap">
+    <div class="sec-head" style="text-align:left;margin-bottom:26px"><h2>学习进度</h2><p>你好 ${esc(u.name)}，这是你的学习足迹</p></div>
+    <div class="stat-grid">
+      <div class="stat"><div class="v">⚡ ${u.xp}</div><div class="k">累计 XP</div></div>
+      <div class="stat"><div class="v">🔥 ${u.streak} 天</div><div class="k">连续打卡（最长 ${u.bestStreak} 天）</div></div>
+      <div class="stat"><div class="v">📚 ${wordCnt}</div><div class="k">已掌握词汇</div></div>
+      <div class="stat"><div class="v">🎯 ${acc}%</div><div class="k">总体正确率</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>每周学习曲线</h3><p style="margin-bottom:12px">最近 7 天每日 XP</p>
+        <div class="chart">${last7.map(d => `<div class="col"><span class="num">${d.v || ""}</span><div class="barv" style="height:${Math.round(d.v / max * 105)}px"></div><span class="lb">${d.label}</span></div>`).join("")}</div>
+      </div>
+      <div class="card">
+        <h3>🧭 个性化学习路径推荐</h3>
+        <div style="margin-top:12px">${rec.html}</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <h3>课程完成度</h3>
+      ${Object.keys(LANGS).map(k => {
+        const total = allUnitsOf(k).length; const done = levelAllDone(u, k);
+        const enr = u.enrolled[k];
+        return `<div class="prog-row"><div class="flag">${LANGS[k].flag}</div>
+          <div class="info"><b>${LANGS[k].name} ${enr ? "· " + esc(enr) : "（未报名）"}</b>
+            <div class="bar" style="margin-top:7px"><i style="width:${total ? Math.round(done / total * 100) : 0}%"></i></div></div>
+          <span style="font-size:13px;color:var(--muted);white-space:nowrap">${done} / ${total} 单元</span>
+          ${enr ? `<a class="btn btn-ghost btn-sm" href="#/learn/${k}">继续</a>` : `<a class="btn btn-pri btn-sm" href="#/course/${k}">去报名</a>`}</div>`;
+      }).join("")}
+    </div>
+    <div class="card" style="margin-top:18px">
+      <h3>模块正确率分析</h3>
+      <div class="grid g4" style="margin-top:14px">
+        ${[["word","🃏 单词记忆"],["grammar","✏️ 语法练习"],["listen","🎧 听力训练"],["speak","🎙️ 口语跟读"]].map(([m, t]) => {
+          const st = u.moduleStat[m]; const a = st.c ? Math.round(st.r / st.c * 100) : 0;
+          return `<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:${a >= 80 ? "var(--ok)" : a >= 50 ? "var(--acc)" : "var(--bad)"}">${st.c ? a + "%" : "—"}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${t}</div><div style="font-size:11.5px;color:var(--muted)">${st.c ? `${st.r}/${st.c} 次` : "暂无记录"}</div></div>`;
+        }).join("")}
+      </div>
+    </div>
+  </div></section>${footHTML()}`;
+}
+function last7vals(u){ const arr = []; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); arr.push(u.days[d.toISOString().slice(0, 10)] || 0); } return arr; }
+function levelAllDone(u, lang){ return allUnitsOf(lang).filter(un => isUnitDone(u, un)).length; }
+function recommend(u){
+  const items = [];
+  // 1) 找正确率最低的模块
+  const m = u.moduleStat;
+  const accs = [["word", m.word], ["grammar", m.grammar], ["listen", m.listen], ["speak", m.speak]]
+    .filter(([k, v]) => v.c >= 3).map(([k, v]) => [k, v.r / v.c]).sort((a, b) => a[1] - b[1]);
+  const modName = { word: "单词记忆", grammar: "语法练习", listen: "听力训练", speak: "口语跟读" };
+  if (accs.length && accs[0][1] < 0.7) items.push(`🎯 你的「${modName[accs[0][0]]}」正确率偏低（${Math.round(accs[0][1] * 100)}%），建议回到当前单元重点加练这个模块。`);
+  // 2) 找第一个未完成单元
+  for (const lang of Object.keys(u.enrolled)) {
+    const next = allUnitsOf(lang).find(un => !isUnitDone(u, un));
+    if (next) { items.push(`📖 ${LANGS[lang].name}${next.lv}《${esc(next.title)}》还未完成，按 单词 → 语法 → 听力 → 口语 的顺序走一遍即可点亮 ✓`); break; }
+  }
+  // 3) 升级提示
+  for (const lang of Object.keys(u.enrolled)) {
+    const lv = u.enrolled[lang]; const units = COURSES[lang][lv] || [];
+    if (units.length && units.every(x => isUnitDone(u, Object.assign({ lang, lv }, x)))) {
+      const nextLv = LEVELS[LEVELS.findIndex(l => l.id === lv) + 1];
+      if (nextLv && !nextLv.locked && (COURSES[lang][nextLv.id] || []).length) items.push(`🎉 恭喜！${LANGS[lang].name} ${lv} 已全部完成，可以挑战 ${nextLv.id}《${nextLv.name}》了`);
+      else items.push(`🎉 ${LANGS[lang].name} ${lv} 已全部完成！更高等级内容筹备中，先保持打卡节奏～`);
+      break;
+    }
+  }
+  // 4) 连续打卡提醒
+  if (u.streak === 0) items.push(`🔥 今天还没学习哦，完成任意一个模块即可续上打卡！`);
+  else if (u.streak === 1) items.push(`🔥 已连续学习 1 天，保持节奏，向「三日之约」成就进发！`);
+  else if (u.streak >= 2) items.push(`🔥 已连续学习 ${u.streak} 天，再坚持 ${u.streak < 7 ? 7 - u.streak : 1} 天可解锁${u.streak < 7 ? "「七日坚守」" : "新的纪录"}成就！`);
+  if (!items.length) items.push(`💪 先报名一门课程，个性化路径会随你的学习数据不断更新～`);
+  return { html: items.map(t => `<div style="display:flex;gap:9px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px;line-height:1.7"><span>${t}</span></div>`).join("") };
+}
+
+/* ---------- 页面：社区 ---------- */
+function viewCommunity(){
+  const u = curUser();
+  const posts = getPosts();
+  return `${navHTML("community")}
+  <section class="section"><div class="wrap" style="max-width:760px">
+    <div class="sec-head"><h2>学习社区</h2><p>和 26 万学习者交流心得 · 互相打气</p></div>
+    ${u ? `<div class="card" style="margin-bottom:18px">
+      <div style="display:flex;gap:10px;margin-bottom:10px"><b style="font-size:14px">✍️ 分享你的学习心得</b></div>
+      <textarea class="ta" id="postBody" placeholder="今天学了什么？有什么好方法？都可以聊聊～"></textarea>
+      <div style="text-align:right;margin-top:10px"><button class="btn btn-pri btn-sm" onclick="submitPost()">发布</button></div>
+    </div>` : `<div class="card" style="margin-bottom:18px;text-align:center"><p>登录后即可发帖与互动～</p><a class="btn btn-pri btn-sm" style="margin-top:10px" href="#/login">去登录</a></div>`}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="tabs" style="box-shadow:none;padding:4px">
+        <button class="${ui.commTab === 0 ? "on" : ""}" onclick="setCommTab(0)">🔥 最新讨论</button>
+        <button class="${ui.commTab === 1 ? "on" : ""}" onclick="setCommTab(1)">🏆 XP 排行榜</button>
+      </div>
+    </div>
+    ${ui.commTab === 0 ? posts.map(p => postHTML(p, u)).join("") : lbHTML(u)}
+  </div></section>${footHTML()}`;
+}
+window.setCommTab = i => { ui.commTab = i; route(); };
+function getPosts(){
+  if (!db.posts) { db.posts = SEED_POSTS.slice(); saveDB(db); }
+  return db.posts;
+}
+function postHTML(p, u){
+  return `<div class="post">
+    <div class="head"><div class="avatar" style="background:${p.avatarColor || "var(--pri)"}">${esc(p.user[0])}</div><b>${esc(p.user)}</b>${p.user === (u && u.name) ? '<span class="pill pill-pri">我</span>' : ""}<time>${fmtDate(p.time)}</time></div>
+    <div class="body">${esc(p.body)}</div>
+    <div class="acts">
+      <button class="${p.liked ? "liked" : ""}" onclick="likePost('${p.id}')">${p.liked ? "❤️" : "🤍"} ${p.likes}</button>
+      <button onclick="focusCmt('${p.id}')">💬 ${p.comments.length} 条评论</button>
+    </div>
+    ${p.comments.length ? `<div class="cmt">${p.comments.map(c => `<div class="c"><b>${esc(c.user)}：</b>${esc(c.text)}</div>`).join("")}</div>` : ""}
+    ${u ? `<div class="cmt-row"><input id="cmt-${p.id}" placeholder="友善回复…" onkeydown="if(event.key==='Enter')submitCmt('${p.id}')"><button class="btn btn-ghost btn-sm" onclick="submitCmt('${p.id}')">回复</button></div>` : ""}
+  </div>`;
+}
+window.likePost = function(id){
+  const u = curUser(); if (!u) { toast("登录后才能点赞哦", "bad"); return; }
+  const p = getPosts().find(x => x.id === id); if (!p) return;
+  p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveDB(db); route();
+};
+window.focusCmt = id => { const el = $("#cmt-" + id); if (el) el.focus(); };
+window.submitCmt = function(id){
+  const u = curUser(); if (!u) { toast("登录后才能评论哦", "bad"); return; }
+  const el = $("#cmt-" + id); const t = (el.value || "").trim();
+  if (!t) return;
+  getPosts().find(x => x.id === id).comments.push({ user: u.name, text: t });
+  saveDB(db); toast("评论成功", "ok"); route();
+};
+window.submitPost = function(){
+  const u = curUser(); if (!u) return;
+  const body = ($("#postBody").value || "").trim();
+  if (!body) { toast("写点什么再发布吧～", "bad"); return; }
+  getPosts().unshift({ id: "u" + Date.now(), user: u.name, avatarColor: "var(--pri)", time: Date.now(), body, likes: 0, liked: false, comments: [] });
+  saveDB(db);
+  if (!u.ach.includes("social")) { u.ach.push("social"); checkAch(u); saveUser(u); }
+  $("#postBody").value = ""; toast("发布成功！+10 XP", "ok"); gainXP(u, 10); route();
+};
+function lbHTML(u){
+  const list = [...SEED_LB];
+  if (u) list.push({ user: u.name, xp: u.xp, me: true });
+  list.sort((a, b) => b.xp - a.xp);
+  return `<div class="card">${list.map((r, i) => `
+    <div class="lb-row ${r.me ? "me" : ""}">
+      <div class="lb-rank" style="${i < 3 ? "background:linear-gradient(135deg,#fde68a,#f59e0b);color:#fff" : ""}">${i + 1}</div>
+      <b style="flex:1">${esc(r.user)}${r.me ? "（我）" : ""}</b>
+      <span style="color:var(--pri);font-weight:700">⚡ ${r.xp} XP</span>
+    </div>`).join("")}</div>`;
+}
+
+/* ---------- 页面：成就 ---------- */
+function viewAchievements(){
+  const u = curUser();
+  return `${navHTML("achievements")}
+  <section class="section"><div class="wrap" style="max-width:860px">
+    <div class="sec-head"><h2>成就中心</h2><p>${u ? `已点亮 ${u.ach.length} / ${ACH.length} 枚徽章，继续加油！` : "登录后开始收集你的徽章"}</p></div>
+    <div class="grid g2">
+      ${ACH.map(a => `<div class="ach ${u && u.ach.includes(a.id) ? "got" : ""}">
+        <div class="medal">${a.icon}</div>
+        <div class="t"><b>${a.name}</b><span>${a.desc}${u && u.ach.includes(a.id) ? " · ✅ 已达成" : ""}</span></div>
+      </div>`).join("")}
+    </div>
+  </div></section>${footHTML()}`;
+}
+
+/* ---------- 页面：登录 / 注册 ---------- */
+function viewLogin(){
+  return `${navHTML("login")}
+  <div class="auth-wrap"><div class="auth-card">
+    <h2>欢迎回来 👋</h2><div class="sub">登录 LinguaVerse，继续你的语言之旅</div>
+    <div class="fld"><label>用户名</label><input id="li-user" placeholder="请输入用户名" autocomplete="username"></div>
+    <div class="fld"><label>密码</label><input id="li-pw" type="password" placeholder="请输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="f-err" id="li-err"></div>
+    <button class="btn btn-pri btn-lg" style="width:100%" onclick="doLogin()">登 录</button>
+    <div class="auth-alt">还没有账号？<a href="#/register">免费注册</a></div>
+  </div></div>${footHTML()}`;
+}
+function viewRegister(){
+  return `${navHTML("register")}
+  <div class="auth-wrap"><div class="auth-card">
+    <h2>创建账号 🌱</h2><div class="sub">30 秒注册，立即开启沉浸式学习</div>
+    <div class="fld"><label>用户名</label><input id="rg-user" placeholder="2-16 个字符" maxlength="16"></div>
+    <div class="fld"><label>密码</label><input id="rg-pw" type="password" placeholder="至少 6 位" onkeydown="if(event.key==='Enter')doRegister()"></div>
+    <div class="fld"><label>确认密码</label><input id="rg-pw2" type="password" placeholder="再输一遍" onkeydown="if(event.key==='Enter')doRegister()"></div>
+    <div class="f-err" id="rg-err"></div>
+    <button class="btn btn-pri btn-lg" style="width:100%" onclick="doRegister()">注册并开始学习</button>
+    <div class="auth-alt">已有账号？<a href="#/login">直接登录</a></div>
+  </div></div>${footHTML()}`;
+}
+window.doLogin = function(){
+  const n = $("#li-user").value.trim(), p = $("#li-pw").value;
+  const u = db.users[n];
+  if (!u || u.pw !== hashPw(p)) { $("#li-err").textContent = "用户名或密码不正确"; return; }
+  db.session = n; saveDB(db); toast(`欢迎回来，${n}！`, "ok"); nav("/learn");
+};
+window.doRegister = function(){
+  const n = $("#rg-user").value.trim(), p = $("#rg-pw").value, p2 = $("#rg-pw2").value;
+  const err = $("#rg-err");
+  if (n.length < 2) { err.textContent = "用户名至少 2 个字符"; return; }
+  if (db.users[n]) { err.textContent = "该用户名已被注册"; return; }
+  if (p.length < 6) { err.textContent = "密码至少 6 位"; return; }
+  if (p !== p2) { err.textContent = "两次输入的密码不一致"; return; }
+  const u = newUser(n, p); db.session = n; checkAch(u); saveDB(db);
+  toast(`🎉 欢迎加入 LinguaVerse，${n}！`, "ok"); nav("/courses");
+};
+window.logout = null; // 顶栏点击头像进进度页；如需退出可在进度页操作
+
+/* ---------- 渲染入口 ---------- */
+function render(page){
+  const views = {
+    home: viewHome, courses: viewCourses, course: () => viewCourse(ui.lang || "en"),
+    learn: viewLearn, progress: viewProgress, community: viewCommunity,
+    achievements: viewAchievements, login: viewLogin, register: viewRegister,
+  };
+  app.innerHTML = (views[page] || viewHome)();
+}
+route();
+</script>
+</body>
+</html>
