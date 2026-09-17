@@ -12,9 +12,10 @@
   --acc:#f59e0b; --ok:#10b981; --bad:#ef4444; --pink:#ec4899; --cyan:#06b6d4;
   --r:14px; --shadow:0 6px 24px rgba(28,35,51,.07);
   --grad:linear-gradient(135deg,#5b5ce2 0%,#8b5cf6 55%,#ec4899 100%);
+  --surface:#ffffff; --surface-2:#f1f2f8; --nav-bg:rgba(255,255,255,.92); --input-bg:#ffffff;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;color-scheme:light}
 body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
@@ -22,7 +23,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 
 /* ===== 顶部导航 ===== */
-.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav-in{display:flex;align-items:center;gap:26px;height:62px}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:.3px}
 .logo .mark{width:34px;height:34px;border-radius:10px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
@@ -34,7 +35,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:14px;font-weight:600;transition:.15s;border:1px solid transparent}
 .btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-d)}
-.btn-ghost{border-color:var(--line);color:var(--ink);background:#fff}.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
+.btn-ghost{border-color:var(--line);color:var(--ink);background:var(--surface)}.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
 .btn-lg{padding:12px 26px;font-size:15.5px;border-radius:12px}
 .btn-sm{padding:6px 12px;font-size:13px;border-radius:8px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -78,8 +79,8 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
 /* 等级路径 */
 .ladder{display:flex;flex-direction:column;gap:14px;margin-top:20px}
-.lv-row{display:flex;gap:16px;align-items:stretch;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
-.lv-row.locked{opacity:.62;background:#fafafc}
+.lv-row{display:flex;gap:16px;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.lv-row.locked{opacity:.62;background:var(--surface-2)}
 .lv-badge{min-width:64px;height:64px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
 .lv-info{flex:1}
 .lv-info h4{font-size:16px;margin-bottom:5px}
@@ -88,7 +89,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .lv-act{display:flex;align-items:center}
 
 /* Tabs */
-.tabs{display:flex;gap:8px;background:#fff;border:1px solid var(--line);padding:6px;border-radius:12px;box-shadow:var(--shadow);flex-wrap:wrap}
+.tabs{display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);padding:6px;border-radius:12px;box-shadow:var(--shadow);flex-wrap:wrap}
 .tabs button{flex:1;padding:10px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap}
 .tabs button.on{background:var(--pri);color:#fff}
 .tabs button.done::after{content:" ✓";color:var(--ok)}
@@ -112,7 +113,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .rate-no{background:#fee2e2;color:#b91c1c}.rate-no:hover{background:#fecaca}
 .rate-yes{background:#d1fae5;color:#047857}.rate-yes:hover{background:#a7f3d0}
 
-.q-opt{display:block;width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--line);border-radius:11px;font-size:14.5px;margin-bottom:10px;background:#fff;transition:.14s}
+.q-opt{display:block;width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--line);border-radius:11px;font-size:14.5px;margin-bottom:10px;background:var(--surface);transition:.14s}
 .q-opt:hover{border-color:var(--pri)}
 .q-opt.right{border-color:var(--ok);background:#ecfdf5}
 .q-opt.wrong{border-color:var(--bad);background:#fef2f2}
@@ -128,7 +129,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
 /* 进度 */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
 .stat .v{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stat .k{font-size:13px;color:var(--muted);margin-top:4px}
 .bar{height:9px;background:#eef0f6;border-radius:99px;overflow:hidden}
@@ -145,7 +146,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .chart .num{font-size:11px;font-weight:700;color:var(--pri)}
 
 /* 社区 */
-.post{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
 .post .head{display:flex;gap:11px;align-items:center;margin-bottom:10px}
 .post .head .avatar{cursor:default}
 .post .head b{font-size:14.5px}
@@ -158,31 +159,31 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .post .cmt .c{font-size:13px;color:#414a60;padding:5px 0}
 .post .cmt .c b{color:var(--ink)}
 .cmt-row{display:flex;gap:8px;margin-top:10px}
-.cmt-row input{flex:1;border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;outline:none}
+.cmt-row input{flex:1;border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;outline:none;background:var(--input-bg);color:var(--ink)}
 .cmt-row input:focus{border-color:var(--pri)}
-textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font-size:14px;min-height:88px;resize:vertical;outline:none}
+textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font-size:14px;min-height:88px;resize:vertical;outline:none;background:var(--input-bg);color:var(--ink)}
 textarea.ta:focus{border-color:var(--pri)}
 
 /* 成就 */
-.ach{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
-.ach .medal{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;background:#f1f2f8;filter:grayscale(1);opacity:.55;flex:none}
+.ach{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.ach .medal{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;background:var(--surface-2);filter:grayscale(1);opacity:.55;flex:none}
 .ach.got .medal{background:linear-gradient(135deg,#fde68a,#f59e0b);filter:none;opacity:1;box-shadow:0 4px 14px rgba(245,158,11,.35)}
 .ach .t b{font-size:14.5px;display:block}
 .ach .t span{font-size:12.5px;color:var(--muted)}
 .lb-row{display:flex;align-items:center;gap:13px;padding:12px 6px;border-bottom:1px dashed var(--line);font-size:14.5px}
 .lb-row:last-child{border:none}
-.lb-rank{width:30px;height:30px;border-radius:9px;background:#f1f2f8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--muted);flex:none}
+.lb-rank{width:30px;height:30px;border-radius:9px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--muted);flex:none}
 .lb-row.me{background:var(--pri-soft);border-radius:10px;padding-left:10px;padding-right:10px}
 .lb-row.me .lb-rank{background:var(--pri);color:#fff}
 
 /* 表单 */
 .auth-wrap{max-width:420px;margin:56px auto}
-.auth-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:var(--shadow)}
+.auth-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px;box-shadow:var(--shadow)}
 .auth-card h2{text-align:center;font-size:22px;margin-bottom:6px}
 .auth-card .sub{text-align:center;color:var(--muted);font-size:13.5px;margin-bottom:24px}
 .fld{margin-bottom:15px}
 .fld label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a4256}
-.fld input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;outline:none;transition:.15s}
+.fld input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;outline:none;background:var(--input-bg);color:var(--ink);transition:.15s}
 .fld input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(91,92,226,.12)}
 .f-err{color:var(--bad);font-size:12.5px;margin-top:5px;min-height:16px}
 .auth-alt{text-align:center;font-size:13.5px;color:var(--muted);margin-top:16px}
@@ -198,14 +199,32 @@ textarea.ta:focus{border-color:var(--pri)}
 .empty{text-align:center;padding:44px 0;color:var(--muted);font-size:14px}
 .backlink{font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;margin-bottom:14px}
 .backlink:hover{color:var(--pri)}
-.sel{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;outline:none;font-size:14px}
+.sel{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface);outline:none;color:var(--ink);font-size:14px}
 .sel:focus{border-color:var(--pri)}
 @media(max-width:900px){
   .hero-in{grid-template-columns:1fr}.g4,.g3{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}
   .nav-links{overflow-x:auto}.hero h1{font-size:31px}
 }
 @media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}.nav-in{gap:12px}.nav-links a{padding:8px 8px;font-size:13px}}
+/* ===== 深色模式 (P3) ===== */
+:root[data-theme="dark"]{
+  --bg:#0e1120; --panel:#171b2c; --ink:#e9ebf5; --muted:#9aa3bd; --line:#262b40;
+  --pri:#7d7ef2; --pri-d:#a3a4f7; --pri-soft:#222743;
+  --surface:#171b2c; --surface-2:#1f2538; --nav-bg:rgba(14,17,32,.9); --input-bg:#1f2538;
+  --shadow:0 6px 24px rgba(0,0,0,.45);
+  --grad:linear-gradient(135deg,#6d6ef0 0%,#9b6cf6 55%,#f06fb0 100%);
+  color-scheme:dark;
+}
+:root[data-theme="dark"] .post .body{color:var(--ink)}
+:root[data-theme="dark"] .post .cmt .c{color:var(--muted)}
+:root[data-theme="dark"] .toast{background:#2a2f44}
+:root[data-theme="dark"] .hero-card .row{color:#e9ebf5}
+:root[data-theme="dark"] .lv-info p{color:var(--muted)}
 </style>
+<meta name="theme-color" content="#5b5ce2">
+<script>
+try{var _t=localStorage.getItem("lv_theme");if(_t==="dark"||(!_t&&window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.dataset.theme="dark";}catch(e){}
+</script>
 </head>
 <body>
 <div id="app"></div>
@@ -646,8 +665,8 @@ function navHTML(page){
     <a class="logo" href="#/"><span class="mark">L</span>LinguaVerse</a>
     <div class="nav-links">${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}">${t}</a>`).join("")}</div>
     <div class="nav-user">${u
-      ? `<span style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP</span><a class="avatar" title="${esc(u.name)}" href="#/progress">${esc(u.name[0].toUpperCase())}</a>`
-      : `<a class="btn btn-ghost btn-sm" href="#/login">登录</a><a class="btn btn-pri btn-sm" href="#/register">免费注册</a>`}</div>
+      ? `<button class="btn btn-ghost btn-sm" onclick="toggleTheme()" title="切换深色 / 浅色" style="padding:6px 10px;margin-right:6px">${document.documentElement.dataset.theme==="dark"?"☀️":"🌙"}</button><span style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP</span><a class="avatar" title="${esc(u.name)}" href="#/progress">${esc(u.name[0].toUpperCase())}</a>`
+      : `<button class="btn btn-ghost btn-sm" onclick="toggleTheme()" title="切换深色 / 浅色" style="padding:6px 10px;margin-right:6px">${document.documentElement.dataset.theme==="dark"?"☀️":"🌙"}</button><a class="btn btn-ghost btn-sm" href="#/login">登录</a><a class="btn btn-pri btn-sm" href="#/register">免费注册</a>`}</div>
   </div></nav>`;
 }
 function footHTML(){ return `<div class="footer"><div class="wrap">LinguaVerse · 沉浸式多语言学习平台 — 英语 · 日语 · 韩语<br><span style="font-size:12px">云端同步已开启 · 单文件零依赖 · 可部署于 Cloudflare Pages</span></div></div>`; }
@@ -665,7 +684,7 @@ function viewHome(){
       <p class="sub">LinguaVerse 提供英语、日语、韩语的分级沉浸式课程：单词记忆、语法练习、口语跟读、听力训练四大模块，配合智能进度追踪与个性化学习路径，让坚持不再困难。</p>
       <div class="tags"><span class="tag">📖 分级课程体系</span><span class="tag">🎯 四大互动模块</span><span class="tag">📈 进度追踪</span><span class="tag">🏅 成就激励</span></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn btn-lg" style="background:#fff;color:var(--pri)" href="#/courses">免费开始学习</a>
+        <a class="btn btn-lg" style="background:var(--surface);color:var(--pri)" href="#/courses">免费开始学习</a>
         <a class="btn btn-lg" style="background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)" href="#/learn">我有账号，继续学习</a>
       </div>
     </div>
@@ -1272,6 +1291,13 @@ window.logout = async function(){
   db.session = null; saveDB(db); toast("已退出登录", "ok"); nav("/home");
 };
 
+window.toggleTheme = function(){
+  var d = document.documentElement; var dark = d.dataset.theme === "dark";
+  if (dark){ delete d.dataset.theme; try{localStorage.setItem("lv_theme","light");}catch(e){} }
+  else { d.dataset.theme = "dark"; try{localStorage.setItem("lv_theme","dark");}catch(e){} }
+  var tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute("content", dark ? "#5b5ce2" : "#171b2c");
+  route();
+};
 /* ---------- 渲染入口 ---------- */
 function render(page){
   const views = {
