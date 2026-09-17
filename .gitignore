@@ -3,3 +3,4 @@ _dom.html
 _chrome.log
 _check.js
 node_modules/
+.wrangler/
