@@ -1,4 +1,4 @@
-# LinguaVerse · 沉浸式多语言学习平台（v1.1.0）
+# LinguaVerse · 沉浸式多语言学习平台（v1.2.0）
 
 单文件零依赖的多语言在线学习网站（英语 / 日语 / 韩语），双击 `index.html` 即可本地运行，一条命令部署到 Cloudflare Pages，并支持云端账号与进度同步。
 
@@ -16,6 +16,12 @@
 | ☁️ 云端同步 | 写操作先落本地缓存再异步同步云端，离线可学、联网自动回传（含离线队列） |
 | 🧭 个性化路径推荐 | 根据正确率/未完成单元/打卡状态智能推荐下一步学什么 |
 | 💬 社区 + 🏅 成就激励 | 真实跨用户讨论区发帖/点赞/评论、XP 排行榜、8 枚成就徽章 |
+| 🔁 间隔重复复习 | 单词记忆接入 SM-2 算法，认识/忘记自动排期，「复习」页集中清到期卡片 |
+| 📒 生词本 | 语法/听力答错、单词自评「不认识」自动收集，可听发音、可移除 |
+| 🌙 深色模式 | 跟随系统 + 手动切换，首屏防闪白 |
+| 🎯 每日目标 | 设定每日 XP 目标，进度条直观展示，达成解锁成就 |
+| 📊 学习战报 | Canvas 生成精美战报卡片，一键保存图片分享 |
+| 📱 PWA | 离线可学、可安装到桌面/主屏（部署到 https 后生效） |
 
 ## 本地运行
 
@@ -65,6 +71,9 @@ npx wrangler pages deploy . --project-name=linguaverse
 # 全流程冒烟测试（注册→报名→四大模块→进度→社区→成就→再登录，33 断言）
 npm i jsdom --prefix <任意目录>   # 或全局已有
 NODE_PATH=<jsdom 所在 node_modules> node tests/flow.test.js
+
+# SM-2 间隔重复 / 生词本 单元测试（零依赖，12 断言）
+node tests/srs.test.js
 ```
 
 ## 技术说明
@@ -79,10 +88,14 @@ NODE_PATH=<jsdom 所在 node_modules> node tests/flow.test.js
 ```
 linguaverse-web/
 ├── index.html          # 全部页面 + 逻辑（唯一必需文件，前端 store 层含云端同步）
+├── manifest.webmanifest # PWA 清单
+├── sw.js               # Service Worker（离线缓存壳）
+├── icon.svg / icon-192.png / icon-512.png  # PWA 图标
 ├── functions/api/       # Cloudflare Pages Functions 后端（register/login/logout/me/posts…）
 ├── schema.sql          # D1 建表语句
 ├── wrangler.toml       # Pages + D1 绑定配置
 ├── tests/flow.test.js  # jsdom 全流程冒烟测试
+├── tests/srs.test.js   # SM-2 / 生词本 单元测试（零依赖）
 ├── deploy.ps1          # Cloudflare Pages 一键部署（含 D1）
 ├── deploy.bat          # 双击部署
 └── README.md
