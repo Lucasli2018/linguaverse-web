@@ -222,6 +222,9 @@ textarea.ta:focus{border-color:var(--pri)}
 :root[data-theme="dark"] .lv-info p{color:var(--muted)}
 </style>
 <meta name="theme-color" content="#5b5ce2">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <script>
 try{var _t=localStorage.getItem("lv_theme");if(_t==="dark"||(!_t&&window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.dataset.theme="dark";}catch(e){}
 </script>
@@ -1316,12 +1319,12 @@ function viewReview(){
       <div class="flash-face flash-front"><div class="word">${esc(card.t)}</div>${card.p ? `<div class="phon">${esc(card.p)}</div>` : ""}<div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
       <div class="flash-face flash-back"><div class="m">${esc(card.m || "（回顾）")}</div><div class="s">${esc(card.t)}</div></div>
     </div></div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakLang('${card.lang}','${esc(card.t).replace(/'/g, "\'")}')">🔊 听发音</button></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakDue(${idx})">🔊 听发音</button></div>
     <div class="rate-row">
-      <button class="rate rate-no" onclick="rateReview('${card.key}',0)">😵 忘了</button>
-      <button class="rate rate-no" style="background:#fef3c7;color:#b45309" onclick="rateReview('${card.key}',3)">🤔 模糊</button>
-      <button class="rate rate-yes" style="background:#dbeafe;color:#1d4ed8" onclick="rateReview('${card.key}',4)">🙂 记得</button>
-      <button class="rate rate-yes" onclick="rateReview('${card.key}',5)">😎 很熟</button>
+      <button class="rate rate-no" onclick="rateReview(${idx},0)">😵 忘了</button>
+      <button class="rate rate-no" style="background:#fef3c7;color:#b45309" onclick="rateReview(${idx},3)">🤔 模糊</button>
+      <button class="rate rate-yes" style="background:#dbeafe;color:#1d4ed8" onclick="rateReview(${idx},4)">🙂 记得</button>
+      <button class="rate rate-yes" onclick="rateReview(${idx},5)">😎 很熟</button>
     </div>
   </div>` : `<div class="empty">🎉 今天没有待复习的单词，太棒了！<br>去单词记忆模块学新词，明后天会按记忆曲线自动提醒你回来复习。</div>`;
   const bankHTML = bank.length ? bank.map((b, i) => `<div class="card" style="display:flex;gap:12px;align-items:center;padding:14px 16px;margin-bottom:10px">
@@ -1340,9 +1343,14 @@ function viewReview(){
   </div></section>${footHTML()}`;
 }
 window.flipReview = () => { ui.reviewFlip = !ui.reviewFlip; route(); };
-window.rateReview = function(key, q){
+window.speakDue = function(i){
   const u = curUser(); if (!u) return;
-  srsReview(u, key, q);
+  const d = srsDue(u)[i]; if (d) tts(d.t, LANGS[d.lang].speech);
+};
+window.rateReview = function(i, q){
+  const u = curUser(); if (!u) return;
+  const d = srsDue(u)[i]; if (!d) { route(); return; }
+  srsReview(u, d.key, q);
   ui.reviewFlip = false;
   const due = srsDue(u);
   if (ui.reviewIdx >= due.length) ui.reviewIdx = Math.max(0, due.length - 1);
@@ -1444,6 +1452,9 @@ function render(page){
     achievements: viewAchievements, login: viewLogin, register: viewRegister,
   };
   app.innerHTML = (views[page] || viewHome)();
+}
+if (location.protocol.indexOf("http") === 0 && "serviceWorker" in navigator) {
+  window.addEventListener("load", function(){ navigator.serviceWorker.register("/sw.js").catch(function(){}); });
 }
 route();
 bootCloud().finally(route);
