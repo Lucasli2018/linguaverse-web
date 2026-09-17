@@ -1088,6 +1088,19 @@ function viewProgress(){
       <div class="stat"><div class="v">📚 ${wordCnt}</div><div class="k">已掌握词汇</div></div>
       <div class="stat"><div class="v">🎯 ${acc}%</div><div class="k">总体正确率</div></div>
     </div>
+    <div class="card" style="margin-top:18px">
+      <h3>🎯 每日目标</h3>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px"><span>今日已得 ${u.days[todayKey()] || 0} XP</span><span>目标 ${(u.goal || 30)} XP</span></div>
+          <div class="bar"><i style="width:${Math.min(100, Math.round((u.days[todayKey()] || 0) / (u.goal || 30) * 100))}%"></i></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="sel" onchange="setGoal(+this.value)">${[20, 30, 50, 80, 100].map(g => `<option value="${g}" ${g === (u.goal || 30) ? "selected" : ""}>${g} XP/天</option>`).join("")}</select>
+          <button class="btn btn-pri btn-sm" onclick="openReport()">📊 生成战报</button>
+        </div>
+      </div>
+    </div>
     <div class="grid g2">
       <div class="card">
         <h3>每周学习曲线</h3><p style="margin-bottom:12px">最近 7 天每日 XP</p>
@@ -1121,6 +1134,46 @@ function viewProgress(){
     </div>
   </div></section>${footHTML()}`;
 }
+/* ---------- 每日目标 + 学习战报 (P3/P4) ---------- */
+function userStats(u){
+  let wordCnt = 0, lessonsDone = 0;
+  Object.keys(LANGS).forEach(lang => allUnitsOf(lang).forEach(un => { const s2 = unitState(u, un); wordCnt += s2.vocab; if (isUnitDone(u, un)) lessonsDone++; }));
+  const m = u.moduleStat; const c = m.word.c + m.grammar.c + m.listen.c + m.speak.c, r = m.word.r + m.grammar.r + m.listen.r + m.speak.r;
+  return { wordCnt, lessonsDone, acc: c ? Math.round(r / c * 100) : 0 };
+}
+window.setGoal = function(n){ const u = curUser(); if (!u) return; u.goal = n; saveUser(u); toast("每日目标已设为 " + n + " XP"); route(); };
+function roundRect(x, X, Y, W, H, r){ x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + W, Y, X + W, Y + H, r); x.arcTo(X + W, Y + H, X, Y + H, r); x.arcTo(X, Y + H, X, Y, r); x.arcTo(X, Y, X + W, Y, r); x.closePath(); }
+window.openReport = function(){
+  const u = curUser(); if (!u) return;
+  const st = userStats(u);
+  const c = document.createElement("canvas"); c.width = 600; c.height = 820; const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, 600, 820); g.addColorStop(0, "#5b5ce2"); g.addColorStop(.55, "#8b5cf6"); g.addColorStop(1, "#ec4899");
+  x.fillStyle = g; x.fillRect(0, 0, 600, 820);
+  x.fillStyle = "rgba(255,255,255,.96)"; roundRect(x, 30, 30, 540, 760, 24); x.fill();
+  x.textAlign = "center"; x.fillStyle = "#1c2333";
+  x.font = "bold 30px sans-serif"; x.fillText("LinguaVerse 学习战报", 300, 110);
+  x.font = "15px sans-serif"; x.fillStyle = "#6b7386"; x.fillText(u.name + "  ·  " + new Date().toLocaleDateString(), 300, 144);
+  const items = [["⚡ 累计 XP", String(u.xp)], ["🔥 连续打卡", u.streak + " 天"], ["📚 已掌握词汇", String(st.wordCnt)], ["🎯 正确率", st.acc + "%"], ["🏅 成就", u.ach.length + "/" + ACH.length], ["📅 今日目标", (u.days[todayKey()] || 0) + "/" + (u.goal || 30)]];
+  const cols = 2, cw = 230, ch = 110, gx = 50, gy = 190, gap = 20;
+  items.forEach((it, i) => {
+    const cx = gx + (i % cols) * (cw + gap), cy = gy + Math.floor(i / cols) * (ch + gap);
+    x.fillStyle = "#f5f6fc"; roundRect(x, cx, cy, cw, ch, 16); x.fill();
+    x.fillStyle = "#5b5ce2"; x.font = "bold 30px sans-serif"; x.fillText(it[1], cx + cw / 2, cy + 54);
+    x.fillStyle = "#6b7386"; x.font = "14px sans-serif"; x.fillText(it[0], cx + cw / 2, cy + 84);
+  });
+  x.fillStyle = "#9aa3bd"; x.font = "14px sans-serif"; x.fillText("沉浸式多语言学习  ·  英语 / 日语 / 韩语", 300, 778);
+  const url = c.toDataURL("image/png");
+  const ov = document.createElement("div"); ov.id = "reportModal";
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto";
+  ov.innerHTML = '<div style="background:var(--panel);border-radius:16px;padding:18px;max-width:340px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)">' +
+    '<img src="' + url + '" style="width:100%;border-radius:12px;display:block">' +
+    '<div style="display:flex;gap:10px;margin-top:14px;justify-content:center">' +
+    '<a class="btn btn-pri btn-sm" download="linguaverse-report.png" href="' + url + '">💾 保存图片</a>' +
+    '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'reportModal\').remove()">关闭</button></div></div>';
+  document.body.appendChild(ov);
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+};
+
 function last7vals(u){ const arr = []; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); arr.push(u.days[d.toISOString().slice(0, 10)] || 0); } return arr; }
 function levelAllDone(u, lang){ return allUnitsOf(lang).filter(un => isUnitDone(u, un)).length; }
 function recommend(u){
