@@ -2,7 +2,7 @@
 // PUT  /api/me -> 上报本地进度（白名单字段，防注入 name/pw_hash）
 import { json, parseUser } from "./_shared.js";
 
-const ALLOWED = ["xp", "days", "streak", "bestStreak", "ach", "enrolled", "progress", "moduleStat"];
+const ALLOWED = ["xp", "days", "streak", "bestStreak", "ach", "enrolled", "progress", "moduleStat", "srs", "wordbank", "goal"];
 
 export async function onRequestGet({ request, env }) {
   const u = await parseUser(env, request);

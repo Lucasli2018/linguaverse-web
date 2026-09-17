@@ -508,6 +508,8 @@ const ACH = [
   { id: "streak_7", icon: "🏆", name: "七日坚守", desc: "连续学习 7 天" },
   { id: "polyglot", icon: "🌍", name: "多语者", desc: "同时报名 2 门及以上语言课程" },
   { id: "social", icon: "💬", name: "社区之声", desc: "在社区发布第一条帖子" },
+  { id: "srs_30", icon: "🔁", name: "复习达人", desc: "用间隔重复复习 30 个单词" },
+  { id: "goal_hit", icon: "🎯", name: "目标达成", desc: "单日 XP 达到设定的每日目标" },
 ];
 
 /* 社区种子帖 */
@@ -552,7 +554,7 @@ async function cloudPushUser(u) {
   if (!cloudOnline()) { CLOUD.pending = true; return; }
   CLOUD.syncing = true;
   try {
-    await apiFetch("/api/me", { method: "PUT", body: JSON.stringify({ xp: u.xp, days: u.days, streak: u.streak, bestStreak: u.bestStreak, ach: u.ach, enrolled: u.enrolled, progress: u.progress, moduleStat: u.moduleStat }) });
+    await apiFetch("/api/me", { method: "PUT", body: JSON.stringify({ xp: u.xp, days: u.days, streak: u.streak, bestStreak: u.bestStreak, ach: u.ach, enrolled: u.enrolled, progress: u.progress, moduleStat: u.moduleStat, srs: u.srs, wordbank: u.wordbank, goal: u.goal }) });
     CLOUD.pending = false; CLOUD.lastErr = "";
   } catch (e) { CLOUD.pending = true; CLOUD.lastErr = String((e && e.message) || e); }
   finally { CLOUD.syncing = false; }
@@ -583,6 +585,7 @@ function newUser(name, pw){
     name, pw: hashPw(pw), created: Date.now(), xp: 0,
     days: {}, streak: 0, bestStreak: 0, ach: [],
     enrolled: {}, progress: {}, moduleStat: { word: { c: 0, r: 0 }, grammar: { c: 0, r: 0 }, listen: { c: 0, r: 0 }, speak: { c: 0, r: 0 } },
+    srs: {}, wordbank: [], goal: 30,
   };
   return db.users[name];
 }
@@ -609,6 +612,8 @@ function checkAch(u){
   if (u.streak >= 7) add("streak_7");
   if (Object.keys(u.enrolled || {}).length >= 2) add("polyglot");
   const units = countUnits(u); if (units >= 1) add("first_lesson");
+  if (Object.keys(u.srs || {}).length >= 30) add("srs_30");
+  if ((u.goal || 30) > 0 && (u.days[todayKey()] || 0) >= u.goal) add("goal_hit");
 }
 function countUnits(u){
   let n = 0;
@@ -643,9 +648,34 @@ function allUnitsOf(lang){
 }
 function levelDoneCount(u, lang, lvId){ return (COURSES[lang][lvId] || []).filter(un => isUnitDone(u, Object.assign({ lang, lv: lvId }, un))).length; }
 
+/* ---------- 间隔重复 (SM-2) + 生词本 (P2) ---------- */
+function srsKey(lang, t){ return lang + "::" + t; }
+function srsUpsert(u, item, q){
+  const key = srsKey(item.lang, item.t);
+  const rec = u.srs[key] || { t: item.t, m: item.m, p: item.p, lang: item.lang, reps: 0, ease: 2.5, interval: 0, lapses: 0, due: todayKey() };
+  if (q < 3){ rec.reps = 0; rec.interval = 1; rec.lapses = (rec.lapses || 0) + 1; rec.ease = Math.max(1.3, (rec.ease || 2.5) - 0.2); }
+  else { rec.reps = (rec.reps || 0) + 1; if (rec.reps === 1) rec.interval = 1; else if (rec.reps === 2) rec.interval = 6; else rec.interval = Math.round((rec.interval || 1) * (rec.ease || 2.5)); rec.ease = Math.min(3.0, (rec.ease || 2.5) + 0.1); }
+  const d = new Date(); d.setDate(d.getDate() + (rec.interval || 1));
+  rec.due = d.toISOString().slice(0, 10);
+  u.srs[key] = rec; saveUser(u);
+}
+function srsReview(u, key, q){ const rec = u.srs[key]; if (!rec) return; srsUpsert(u, { t: rec.t, m: rec.m, p: rec.p, lang: rec.lang }, q); }
+function wordbankAdd(u, item){
+  const key = srsKey(item.lang, item.t);
+  if (!(u.wordbank || []).some(x => srsKey(x.lang, x.t) === key)){
+    u.wordbank.push({ t: item.t, m: item.m, p: item.p, lang: item.lang, src: item.src || "vocab", ts: Date.now() });
+    saveUser(u);
+  }
+}
+function srsDue(u){
+  const t = todayKey(); const srs = u.srs || {};
+  return Object.keys(srs).filter(k => (srs[k].due || "") <= t).map(k => Object.assign({ key: k }, srs[k]));
+}
+window.speakLang = (lang, t) => tts(t, LANGS[lang].speech);
+
 /* ---------- 路由 ---------- */
 const app = $("#app");
-let ui = { lang: null, lv: null, unitIdx: 0, module: "vocab", flashIdx: 0, flashFlip: false, quizIdx: 0, quizPick: -1, listenIdx: 0, listenPick: -1, speakIdx: 0, commTab: 0 };
+let ui = { lang: null, lv: null, unitIdx: 0, module: "vocab", flashIdx: 0, flashFlip: false, quizIdx: 0, quizPick: -1, listenIdx: 0, listenPick: -1, speakIdx: 0, commTab: 0, reviewIdx: 0, reviewFlip: false };
 
 function nav(h){ const t = "#/" + String(h).replace(/^[#/]+/, ""); if (location.hash === t) route(); else location.hash = t; }
 function route(){
@@ -660,7 +690,7 @@ window.addEventListener("hashchange", route);
 /* ---------- 布局骨架 ---------- */
 function navHTML(page){
   const u = curUser();
-  const links = [["home","首页"],["courses","课程中心"],["learn","开始学习"],["progress","学习进度"],["community","社区"],["achievements","成就"]];
+  const links = [["home","首页"],["courses","课程中心"],["learn","开始学习"],["review","复习"],["progress","学习进度"],["community","社区"],["achievements","成就"]];
   return `<nav class="nav"><div class="wrap nav-in">
     <a class="logo" href="#/"><span class="mark">L</span>LinguaVerse</a>
     <div class="nav-links">${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}">${t}</a>`).join("")}</div>
@@ -876,6 +906,9 @@ window.rateWord = function(ok){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
   const i = ui.flashIdx;
   markDone(u, unit, "vocab", i);
+  const _w = unit.vocab[i];
+  if (ok) srsUpsert(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang }, 5);
+  else { srsUpsert(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang }, 1); wordbankAdd(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang, src: "vocab" }); }
   u.moduleStat.word.c++; if (ok) u.moduleStat.word.r++;
   gainXP(u, ok ? XP.word : 1);
   ui.flashFlip = false;
@@ -905,7 +938,7 @@ window.pickGrammar = function(oi){
   markDone(u, unit, "grammar", ui.quizIdx);
   u.moduleStat.grammar.c++;
   if (oi === q.a) { u.moduleStat.grammar.r++; gainXP(u, XP.grammar); toast(`回答正确！+${XP.grammar} XP`, "ok"); }
-  else { gainXP(u, 1); toast("答错啦，看看解析记住它～", "bad"); }
+  else { wordbankAdd(u, { t: q.q, m: q.tip, p: "", lang: ui.lang, src: "grammar" }); gainXP(u, 1); toast("答错啦，看看解析记住它～", "bad"); }
   route();
 };
 window.nextGrammar = function(){
@@ -941,7 +974,7 @@ window.pickListen = function(oi){
   markDone(u, unit, "listen", ui.listenIdx);
   u.moduleStat.listen.c++;
   if (oi === q.a) { u.moduleStat.listen.r++; gainXP(u, XP.listen); toast(`听对了！+${XP.listen} XP`, "ok"); }
-  else { gainXP(u, 1); toast("再听一遍原文，加深印象～", "bad"); }
+  else { wordbankAdd(u, { t: q.t, m: "听力原句", p: "", lang: ui.lang, src: "listen" }); gainXP(u, 1); toast("再听一遍原文，加深印象～", "bad"); }
   route();
 };
 window.nextListen = function(){
@@ -1216,6 +1249,58 @@ function viewAchievements(){
   </div></section>${footHTML()}`;
 }
 
+/* ---------- 页面：间隔复习 ---------- */
+function viewReview(){
+  if (!authGuard()) return "";
+  const u = curUser();
+  const due = srsDue(u);
+  const bank = u.wordbank || [];
+  const idx = Math.min(ui.reviewIdx || 0, Math.max(0, due.length - 1));
+  const card = due.length ? due[idx] : null;
+  const recHTML = card ? `<div class="flash-wrap">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span>待复习 ${idx + 1} / ${due.length}</span><span>${LANGS[card.lang].flag} ${LANGS[card.lang].name}</span></div>
+    <div class="flash ${ui.reviewFlip ? "flip" : ""}" onclick="flipReview()"><div class="flash-in">
+      <div class="flash-face flash-front"><div class="word">${esc(card.t)}</div>${card.p ? `<div class="phon">${esc(card.p)}</div>` : ""}<div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
+      <div class="flash-face flash-back"><div class="m">${esc(card.m || "（回顾）")}</div><div class="s">${esc(card.t)}</div></div>
+    </div></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakLang('${card.lang}','${esc(card.t).replace(/'/g, "\'")}')">🔊 听发音</button></div>
+    <div class="rate-row">
+      <button class="rate rate-no" onclick="rateReview('${card.key}',0)">😵 忘了</button>
+      <button class="rate rate-no" style="background:#fef3c7;color:#b45309" onclick="rateReview('${card.key}',3)">🤔 模糊</button>
+      <button class="rate rate-yes" style="background:#dbeafe;color:#1d4ed8" onclick="rateReview('${card.key}',4)">🙂 记得</button>
+      <button class="rate rate-yes" onclick="rateReview('${card.key}',5)">😎 很熟</button>
+    </div>
+  </div>` : `<div class="empty">🎉 今天没有待复习的单词，太棒了！<br>去单词记忆模块学新词，明后天会按记忆曲线自动提醒你回来复习。</div>`;
+  const bankHTML = bank.length ? bank.map((b, i) => `<div class="card" style="display:flex;gap:12px;align-items:center;padding:14px 16px;margin-bottom:10px">
+      <div style="font-size:22px">${LANGS[b.lang].flag}</div>
+      <div style="flex:1"><b style="font-size:15px">${esc(b.t)}</b>${b.m ? `<div style="font-size:12.5px;color:var(--muted);margin-top:2px">${esc(b.m)}</div>` : ""}<div style="font-size:11px;color:var(--muted);margin-top:3px">来源：${({vocab:"单词记忆",grammar:"语法练习",listen:"听力训练"})[b.src] || b.src}</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="bankRemove(${i})">移除</button>
+    </div>`).join("") : `<div class="empty">生词本还是空的，答错的词会自动收集到这里。</div>`;
+  return `${navHTML("review")}
+  <section class="section"><div class="wrap" style="max-width:640px">
+    <div class="sec-head" style="text-align:left"><h2>间隔复习</h2><p>基于 SM-2 记忆曲线，在快遗忘前提醒你复习</p></div>
+    ${recHTML}
+    <div class="card" style="margin-top:26px">
+      <h3>📒 生词本（${bank.length}）</h3>
+      <div style="margin-top:12px">${bankHTML}</div>
+    </div>
+  </div></section>${footHTML()}`;
+}
+window.flipReview = () => { ui.reviewFlip = !ui.reviewFlip; route(); };
+window.rateReview = function(key, q){
+  const u = curUser(); if (!u) return;
+  srsReview(u, key, q);
+  ui.reviewFlip = false;
+  const due = srsDue(u);
+  if (ui.reviewIdx >= due.length) ui.reviewIdx = Math.max(0, due.length - 1);
+  toast(q >= 3 ? "已记录，下次按曲线安排 ✅" : "已加入明天复习", "ok");
+  route();
+};
+window.bankRemove = function(i){
+  const u = curUser(); if (!u) return;
+  u.wordbank.splice(i, 1); saveUser(u); toast("已从生词本移除"); route();
+};
+
 /* ---------- 页面：登录 / 注册 ---------- */
 function viewLogin(){
   return `${navHTML("login")}
@@ -1302,7 +1387,7 @@ window.toggleTheme = function(){
 function render(page){
   const views = {
     home: viewHome, courses: viewCourses, course: () => viewCourse(ui.lang || "en"),
-    learn: viewLearn, progress: viewProgress, community: viewCommunity,
+    learn: viewLearn, review: viewReview, progress: viewProgress, community: viewCommunity,
     achievements: viewAchievements, login: viewLogin, register: viewRegister,
   };
   app.innerHTML = (views[page] || viewHome)();
