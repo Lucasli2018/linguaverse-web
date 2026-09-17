@@ -76,12 +76,12 @@ if ($idMatch.Success -and (Test-Path wrangler.toml)) {
 
 # ---- 创建项目（已存在则忽略报错） ----
 Write-Host "确保 Pages 项目存在：$ProjectName" -ForegroundColor Cyan
-[void](Invoke-Wrangler @('pages', 'project', 'create', $ProjectName, '--production-branch=production'))
+[void](Invoke-Wrangler @('pages', 'project', 'create', $ProjectName, '--production-branch=master'))
 
 # ---- 部署静态站点（整个目录，入口 index.html） ----
 Write-Host "部署中..." -ForegroundColor Cyan
-# 注意：本项目 Pages 的 production branch 名为 "production"，写 master 只会生成预览部署！
-$code = Invoke-Wrangler @('pages', 'deploy', '.', '--project-name=' + $ProjectName, '--branch=production', '--commit-dirty=true')
+# 部署由领主手动执行（--branch=master）
+$code = Invoke-Wrangler @('pages', 'deploy', '.', '--project-name=' + $ProjectName, '--branch=master', '--commit-dirty=true')
 if ($code -eq 0) {
     Write-Host ""
     Write-Host "✅ 部署成功！访问地址：" -ForegroundColor Green
