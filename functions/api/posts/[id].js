@@ -1,6 +1,6 @@
 // POST /api/posts/:id  { action: "like" }       -> 切换点赞
 //                    { action: "comment", text } -> 发表评论
-import { json, parseUser } from "./_shared.js";
+import { json, parseUser } from "../_shared.js";
 
 export async function onRequestPost({ request, env, params }) {
   const me = await parseUser(env, request);

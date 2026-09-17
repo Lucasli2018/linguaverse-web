@@ -5,7 +5,7 @@
 #   powershell -ExecutionPolicy Bypass -File deploy.ps1 -ProjectName myname
 param(
     [switch]$Login,
-    [string]$ProjectName = "linguaverse"
+    [string]$ProjectName = "linguaverse-web"
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
