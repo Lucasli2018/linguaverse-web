@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-page-node-id="7DQLftE688UE8XkB47z8O4">
 <head data-page-node-id="RKhWM3VSOXO2fiZKoPnf9A">
 <meta charset="UTF-8" data-page-node-id="1uVcqBRLGeSE9CzKgX1Feh">
-<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="yQWwnMApRTCn0ipQbmGGg2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="yQWwnMApRTCn0ipQbmGGg2">
 <title>LinguaVerse · 沉浸式多语言学习</title>
 <meta name="description" content="LinguaVerse —— 英语、日语、韩语沉浸式在线学习平台：分级课程、单词记忆、语法练习、口语跟读、听力训练、进度追踪与社区成就。" data-page-node-id="SrxTD8xbA7IZ6S2PBQ0ygc">
 <style>
@@ -16,7 +16,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;color-scheme:light}
-body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 input,select,textarea{font-family:inherit;font-size:14px}
@@ -28,8 +28,9 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:.3px}
 .logo .mark{width:34px;height:34px;border-radius:10px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
 .nav-links{display:flex;gap:4px;flex:1}
-.nav-links a{padding:8px 13px;border-radius:9px;font-size:14.5px;color:var(--muted);font-weight:500;transition:.15s}
-.nav-links a:hover{background:var(--pri-soft);color:var(--pri)}
+.nav-links a{padding:10px 14px;border-radius:12px;font-size:15px;color:var(--muted);font-weight:500;transition:.15s;min-width:48px;max-width:64px;}
+.nav-links a:hover{background:var(--pri-soft);color:var(--pri);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.nav-links a:active{transform:scale(0.98);transition:.1s}
 .nav-links a.on{background:var(--pri-soft);color:var(--pri);font-weight:700}
 .nav-user{display:flex;align-items:center;gap:10px}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
@@ -128,7 +129,12 @@ input,select,textarea{font-family:inherit;font-size:14px}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(236,72,153,.45)}70%{box-shadow:0 0 0 22px rgba(236,72,153,0)}100%{box-shadow:0 0 0 0 rgba(236,72,153,0)}}
 
 /* 进度 */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:600px){
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .stat{font-size:14px;}
+  .stat .v{font-size:22px;}
+}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
 .stat .v{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stat .k{font-size:13px;color:var(--muted);margin-top:4px}
@@ -201,17 +207,96 @@ textarea.ta:focus{border-color:var(--pri)}
 .toast.ok{background:#0b9e6f}.toast.bad{background:#dc2626}.toast.gold{background:#b45309}
 @keyframes tin{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
 
-.footer{border-top:1px solid var(--line);padding:30px 0;text-align:center;color:var(--muted);font-size:13px;margin-top:40px}
+.footer{border-top:1px solid var(--line);padding:20px 0;text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
 .empty{text-align:center;padding:44px 0;color:var(--muted);font-size:14px}
 .backlink{font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;margin-bottom:14px}
 .backlink:hover{color:var(--pri)}
 .sel{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface);outline:none;color:var(--ink);font-size:14px}
 .sel:focus{border-color:var(--pri)}
+
+/* ===== 移动端汉堡菜单 ===== */
+.nav-burger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:18px;color:var(--ink);flex:none}
+.nav-burger:active{background:var(--pri-soft)}
+.m-menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 16px 32px rgba(28,35,51,.14);padding:8px 14px 14px;max-height:calc(100vh - 62px);overflow-y:auto}
+.m-menu.open{display:block}
+.m-menu a{display:block;padding:12px 12px;border-radius:10px;font-size:15px;color:var(--ink);font-weight:500}
+.m-menu a:active{background:var(--pri-soft)}
+.m-menu a.on{background:var(--pri-soft);color:var(--pri);font-weight:700}
+.m-menu .m-foot{display:flex;gap:10px;align-items:center;margin-top:8px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.m-menu .m-foot .spacer{flex:1}
+
+/* ===== 平板 ≤900px ===== */
 @media(max-width:900px){
-  .hero-in{grid-template-columns:1fr}.g4,.g3{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}
-  .nav-links{overflow-x:auto}.hero h1{font-size:31px}
+  .nav-links{display:none}
+  .nav-burger{display:inline-flex}
+  .nav-xp{display:none}
+  .hero-in{grid-template-columns:1fr;gap:30px}
+  .hero{padding:50px 0 62px}
+  .hero h1{font-size:30px}
+  .g4,.g3{grid-template-columns:1fr 1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .lv-row{flex-wrap:wrap}
+  .lv-act{width:100%;padding-left:80px;margin-top:2px}
 }
-@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}.nav-in{gap:12px}.nav-links a{padding:8px 8px;font-size:13px}}
+/* ===== 手机 ≤600px ===== */
+@media(max-width:600px){
+  .wrap{padding:0 14px}
+  .section{padding:34px 0}
+  .g4,.g3,.g2{grid-template-columns:1fr}
+  .nav-in{height:56px;gap:10px}
+  .logo{font-size:17px}
+  .logo .mark{width:30px;height:30px;font-size:15px}
+  .m-menu{max-height:calc(100vh - 56px)}
+  .nav-user .nav-login,.nav-user .nav-reg{display:none}
+  .hero{padding:40px 0 52px}
+  .hero h1{font-size:25px;margin-bottom:12px}
+  .hero p.sub{font-size:14.5px;margin-bottom:22px}
+  .hero .tags{gap:8px;margin-bottom:24px}
+  .tag{font-size:12px;padding:4px 11px}
+  .hero-cta{flex-direction:column}
+  .hero-cta .btn{width:100%}
+  .hero-card{padding:16px}
+  .sec-head{margin-bottom:26px}
+  .sec-head h2{font-size:21px}
+  .sec-head p{font-size:13.5px}
+  .card{padding:17px}
+  .btn-lg{padding:11px 20px;font-size:14.5px}
+  .tabs{gap:5px;padding:5px}
+  .tabs button{padding:9px 10px;font-size:13px}
+  .sel-row{flex-wrap:wrap}
+  .sel-row .sel{flex:1;min-width:0}
+  .learn-head h2{font-size:19px!important}
+  .kbd-hint{display:none}
+  .flash{height:225px}
+  .flash .word{font-size:26px}
+  .flash-back .m{font-size:21px}
+  .flash-face{padding:18px}
+  .rate{padding:11px 15px;font-size:13.5px}
+  .rate-row{flex-wrap:wrap;gap:9px}
+  .speak-sent{font-size:19.5px}
+  .mic-dot{width:66px;height:66px;font-size:26px}
+  .stat{padding:14px}
+  .stat .v{font-size:20px}
+  .chart{gap:7px;height:130px}
+  .lv-row{padding:14px 15px;gap:12px}
+  .lv-badge{min-width:56px;height:56px;font-size:16px}
+  .lv-act{padding-left:68px}
+  .lv-meta{gap:10px;flex-wrap:wrap}
+  .lv-meta .bar{width:100px!important}
+  .auth-wrap{margin:26px auto}
+  .auth-card{padding:24px 18px}
+  #toasts{left:14px;right:14px;top:66px;align-items:center}
+  .toast{max-width:none;width:100%;text-align:center}
+  .prog-row{gap:10px;flex-wrap:wrap}
+  .prog-row .btn{margin-left:auto}
+  .post{padding:15px 16px}
+  .post .acts{gap:14px}
+  .lb-row{font-size:14px}
+  .ach{padding:14px 15px}
+  .footer{font-size:12px;padding:16px 0}
+  /* iOS 聚焦放大规避 */
+  input,select,textarea,.fld input,.cmt-row input,textarea.ta{font-size:16px!important}
+}
 /* ===== 深色模式 (P3) ===== */
 :root[data-theme="dark"]{
   --bg:#0e1120; --panel:#171b2c; --ink:#e9ebf5; --muted:#9aa3bd; --line:#262b40;
@@ -732,15 +817,33 @@ window.addEventListener("hashchange", route);
 /* ---------- 布局骨架 ---------- */
 function navHTML(page){
   const u = curUser();
-  const links = [["home","首页"],["courses","课程中心"],["learn","开始学习"],["review","复习"],["progress","学习进度"],["community","社区"],["achievements","成就"]];
+  const links = [["home","🏠 首页"],["courses","📚 课程中心"],["learn","✏️ 开始学习"],["review","🔁 复习"],["progress","📈 学习进度"],["community","💬 社区"],["achievements","🏅 成就"]];
+  const themeBtn = `<button class="btn btn-ghost btn-sm" onclick="toggleTheme()" title="切换深色 / 浅色" style="padding:6px 10px;margin-right:6px">${document.documentElement.dataset.theme==="dark"?"☀️":"🌙"}</button>`;
   return `<nav class="nav"><div class="wrap nav-in">
     <a class="logo" href="#/"><span class="mark">L</span>LinguaVerse</a>
-    <div class="nav-links">${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}">${t}</a>`).join("")}</div>
+    <div class="nav-links">${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}">${t.split(" ").pop()}</a>`).join("")}</div>
     <div class="nav-user">${u
-      ? `<button class="btn btn-ghost btn-sm" onclick="toggleTheme()" title="切换深色 / 浅色" style="padding:6px 10px;margin-right:6px">${document.documentElement.dataset.theme==="dark"?"☀️":"🌙"}</button><span style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP</span><a class="avatar" title="${esc(u.name)}" href="#/progress">${esc(u.name[0].toUpperCase())}</a>`
-      : `<button class="btn btn-ghost btn-sm" onclick="toggleTheme()" title="切换深色 / 浅色" style="padding:6px 10px;margin-right:6px">${document.documentElement.dataset.theme==="dark"?"☀️":"🌙"}</button><a class="btn btn-ghost btn-sm" href="#/login">登录</a><a class="btn btn-pri btn-sm" href="#/register">免费注册</a>`}</div>
-  </div></nav>`;
+      ? themeBtn + `<span class="nav-xp" style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP</span><a class="avatar" title="${esc(u.name)}" href="#/progress">${esc(u.name[0].toUpperCase())}</a>`
+      : themeBtn + `<a class="btn btn-ghost btn-sm nav-login" href="#/login">登录</a><a class="btn btn-pri btn-sm nav-reg" href="#/register">免费注册</a>`}<button class="nav-burger" id="navBurger" aria-label="打开菜单" onclick="toggleMNav()">☰</button></div>
+  </div>
+  <div class="m-menu" id="mNav">
+    ${links.map(([id, t]) => `<a href="#/${id}" class="${page === id ? "on" : ""}" onclick="mNavClose()">${t}</a>`).join("")}
+    <div class="m-foot">${u
+      ? `<span style="font-size:12.5px;color:var(--muted)">⚡ ${u.xp} XP · 🔥 连续 ${u.streak} 天</span><span class="spacer"></span><a class="btn btn-ghost btn-sm" href="#/progress" onclick="mNavClose()">我的进度</a>`
+      : `<span class="spacer"></span><a class="btn btn-ghost btn-sm" href="#/login" onclick="mNavClose()">登录</a><a class="btn btn-pri btn-sm" href="#/register" onclick="mNavClose()">免费注册</a>`}</div>
+  </div>
+  </nav>`;
 }
+window.toggleMNav = function(){
+  const m = document.getElementById("mNav"); if (!m) return;
+  m.classList.toggle("open");
+  const b = document.getElementById("navBurger");
+  if (b) { b.textContent = m.classList.contains("open") ? "✕" : "☰"; b.setAttribute("aria-label", m.classList.contains("open") ? "关闭菜单" : "打开菜单"); }
+};
+window.mNavClose = function(){
+  const m = document.getElementById("mNav");
+  if (m && m.classList.contains("open")) { m.classList.remove("open"); const b = document.getElementById("navBurger"); if (b) b.textContent = "☰"; }
+};
 function footHTML(){ return `<div class="footer"><div class="wrap">LinguaVerse · 沉浸式多语言学习平台 — 英语 · 日语 · 韩语<br><span style="font-size:12px">云端同步已开启 · 单文件零依赖 · 可部署于 Cloudflare Pages</span></div></div>`; }
 function authGuard(page){
   if (!curUser()) { toast("请先登录后再继续哦～", "bad"); nav("/login"); return false; }
@@ -755,7 +858,7 @@ function viewHome(){
       <h1>用母语者的方式，<br>学一门新的语言</h1>
       <p class="sub">LinguaVerse 提供英语、日语、韩语的分级沉浸式课程：单词记忆、语法练习、口语跟读、听力训练四大模块，配合智能进度追踪与个性化学习路径，让坚持不再困难。</p>
       <div class="tags"><span class="tag">📖 分级课程体系</span><span class="tag">🎯 四大互动模块</span><span class="tag">📈 进度追踪</span><span class="tag">🏅 成就激励</span></div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="hero-cta" style="display:flex;gap:12px;flex-wrap:wrap">
         <a class="btn btn-lg" style="background:var(--surface);color:var(--pri)" href="#/courses">免费开始学习</a>
         <a class="btn btn-lg" style="background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)" href="#/learn">我有账号，继续学习</a>
       </div>
@@ -894,7 +997,7 @@ function viewLearn(){
   <section class="section"><div class="wrap">
     <div class="learn-head">
       <div>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div class="sel-row" style="display:flex;gap:10px;align-items:center">
           <select class="sel" onchange="switchLang(this.value)">${Object.keys(LANGS).map(k => `<option value="${k}" ${k === ui.lang ? "selected" : ""} ${u.enrolled[k] ? "" : "disabled"}>${LANGS[k].flag} ${LANGS[k].name}${u.enrolled[k] ? " · " + u.enrolled[k] : ""}</option>`).join("")}</select>
           <select class="sel" onchange="switchUnit(+this.value)">${lvUnits.map((x, i) => `<option value="${i}" ${i === ui.unitIdx ? "selected" : ""}>单元 ${i + 1} · ${esc(x.title)}${isUnitDone(u, Object.assign({ lang: ui.lang, lv: unit.lv }, x)) ? " ✓" : ""}</option>`).join("")}</select>
         </div>
@@ -904,7 +1007,7 @@ function viewLearn(){
       <div style="text-align:right"><b style="font-size:18px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">⚡ ${u.xp} XP</b><div style="font-size:12.5px;color:var(--muted)">🔥 连续 ${u.streak} 天</div></div>
     </div>
     <div class="tabs">${tabs.map(([id, t]) => `<button class="${ui.module === id ? "on" : ""} ${doneMods[id] ? "done" : ""}" onclick="setModule('${id}')">${t}</button>`).join("")}</div>
-    <div style="margin-top:10px;font-size:12px;color:var(--muted)">⌨️ 快捷键：空格 翻转 / 播放 · F 听发音 · 1-4 选答案 · ← → 切卡片</div>
+    <div class="kbd-hint" style="margin-top:10px;font-size:12px;color:var(--muted)">⌨️ 快捷键：空格 翻转 / 播放 · F 听发音 · 1-4 选答案 · ← → 切卡片</div>
     <div style="margin-top:24px">${modHTML}</div>
   </div></section>${footHTML()}`;
 }
