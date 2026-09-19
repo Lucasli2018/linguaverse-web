@@ -1,6 +1,6 @@
-// LinguaVerse Service Worker (P3: 离线可安装)
-const CACHE = "lv-v1";
-const ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
+/* LinguaVerse Service Worker (P3: 离线可安装; v1.3.0: 课程数据预缓存) */
+const CACHE = "lv-v2";
+const ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png", "/data/en.json", "/data/ja.json", "/data/ko.json"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -19,6 +19,14 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   // 后端 API 永远走网络，不缓存
   if (url.pathname.startsWith("/api/")) return;
+  // 课程数据：网络优先（支持课程热更），离线回退缓存
+  if (url.pathname.startsWith("/data/")) {
+    e.respondWith(
+      fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
   // 导航请求：网络优先，失败回退缓存的 index.html（离线壳）
   if (req.mode === "navigate") {
     e.respondWith(

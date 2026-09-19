@@ -92,6 +92,17 @@ setTimeout(async () => {
     ok(text().includes("个性化学习路径推荐"), "推荐模块渲染");
     ok(text().includes("已连续学习"), "打卡提醒渲染");
     ok(qa(".chart .col").length === 7, "7 天学习曲线渲染");
+    ok(qa(".heat i").length > 300, "学习热力图渲染（一年格子）");
+
+    console.log("— 9b. 键盘快捷键 —");
+    window.location.hash = "#/learn/en";
+    sync();
+    window.setModule("vocab");
+    document.dispatchEvent(new window.KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    ok(q(".flash.flip"), "空格键翻转单词卡");
+    window.setModule("grammar");
+    document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "1", bubbles: true }));
+    ok(q(".q-opt.right"), "数字键 1 选中答案");
 
     console.log("— 10. 社区 —");
     window.location.hash = "#/community";
@@ -112,7 +123,7 @@ setTimeout(async () => {
     console.log("— 12. 成就页 / 退出登录 / 再登录 —");
     window.location.hash = "#/achievements";
     sync();
-    ok(qa(".ach.got").length === 3, "已点亮 3 枚徽章");
+    ok(qa(".ach.got").length === 4, "已点亮 4 枚徽章（启程/开卷/社区之声/今日目标达成）");
     window.location.hash = "#/login";
     sync();
     document.querySelector("#li-user").value = "tester";

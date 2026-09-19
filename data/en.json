@@ -1,0 +1,116 @@
+{
+  "A2": [
+    {
+      "id": "en-a2-u3",
+      "title": "Shopping & Bargains · 购物砍价",
+      "vocab": [
+        {"t": "discount", "p": "/ˈdɪskaʊnt/", "m": "折扣"},
+        {"t": "size", "p": "/saɪz/", "m": "尺码"},
+        {"t": "cashier", "p": "/kæˈʃɪr/", "m": "收银员"},
+        {"t": "receipt", "p": "/rɪˈsiːt/", "m": "收据"},
+        {"t": "refund", "p": "/ˈriːfʌnd/", "m": "退款"},
+        {"t": "brand", "p": "/brænd/", "m": "品牌"},
+        {"t": "afford", "p": "/əˈfɔːrd/", "m": "买得起"},
+        {"t": "exchange", "p": "/ɪksˈtʃeɪndʒ/", "m": "换货；交换"}
+      ],
+      "grammar": [
+        {"q": "This jacket is ___ than the one I saw yesterday.", "o": ["cheaper", "more cheap", "cheapest", "more cheaper"], "a": 0, "tip": "两者比较用比较级 -er：cheaper than… «比…便宜»。"},
+        {"q": "Could I get a ___? It's 20% off today.", "o": ["discount", "discounting", "discounted", "discounts"], "a": 0, "tip": "get a discount 拿到折扣；20% off 表示打八折。"},
+        {"q": "Can I ___ this shirt for a larger size?", "o": ["exchange", "exchanging", "exchanged", "to exchange"], "a": 0, "tip": "exchange A for B 用 A 换 B；情态动词 can 后接动词原形。"}
+      ],
+      "listen": [
+        {"t": "Do you have this in a bigger size?", "o": ["Do you have this in a bigger size?", "Do you have this in a smaller size?", "How much does this cost?"], "a": 0},
+        {"t": "I'd like a refund, please. Here's my receipt.", "o": ["I'd like a refund, please. Here's my receipt.", "I'd like to exchange this, please.", "I'd like to pay by card."], "a": 0}
+      ],
+      "speak": [
+        {"t": "Excuse me, how much is this sweater?", "hint": "how much 重读，is 与 this 可轻微连读"},
+        {"t": "It's a bit expensive. Is there any discount?", "hint": "a bit 轻快带过，any discount 语调上扬表询问"}
+      ]
+    }
+  ],
+  "B2": [
+    {
+      "id": "en-b2-u1",
+      "title": "Media & Society · 媒体与社会",
+      "vocab": [
+        {"t": "influence", "p": "/ˈɪnfluəns/", "m": "影响"},
+        {"t": "headline", "p": "/ˈhedlaɪn/", "m": "标题"},
+        {"t": "credible", "p": "/ˈkredəbl/", "m": "可信的"},
+        {"t": "bias", "p": "/ˈbaɪəs/", "m": "偏见"},
+        {"t": "audience", "p": "/ˈɔːdiəns/", "m": "受众；观众"},
+        {"t": "campaign", "p": "/kæmˈpeɪn/", "m": "宣传活动；运动"},
+        {"t": "viral", "p": "/ˈvaɪrəl/", "m": "病毒式传播的"},
+        {"t": "source", "p": "/sɔːrs/", "m": "来源；消息源"}
+      ],
+      "grammar": [
+        {"q": "The report claims that fake news ___ rapidly on social media.", "o": ["spreads", "spread", "is spread", "spreading"], "a": 0, "tip": "主语 fake news 为单数，一般现在时动词加 -s；此处陈述普遍事实。"},
+        {"q": "Rarely ___ such a misleading headline.", "o": ["have I seen", "I have seen", "I saw", "did I saw"], "a": 0, "tip": "否定副词 rarely 置于句首引起部分倒装：have I seen。"},
+        {"q": "The article, ___ was published last week, sparked wide debate.", "o": ["which", "that", "what", "who"], "a": 0, "tip": "非限制性定语从句（有逗号）只能用 which，不用 that。"}
+      ],
+      "listen": [
+        {"t": "Social media shapes public opinion more than traditional newspapers.", "o": ["Social media shapes public opinion more than traditional newspapers.", "Social media reflects public opinion like newspapers.", "Traditional newspapers have more influence than social media."], "a": 0},
+        {"t": "We should check whether the source is credible before sharing.", "o": ["We should check whether the source is credible before sharing.", "We should share the news before checking the source.", "We should trust everything we read online."], "a": 0}
+      ],
+      "speak": [
+        {"t": "I think the media plays a powerful role in shaping opinions.", "hint": "plays a powerful role 连贯朗读，shaping 重读"},
+        {"t": "Not everything that goes viral is accurate.", "hint": "not everything 重音落在 everything，句尾下降"}
+      ]
+    },
+    {
+      "id": "en-b2-u2",
+      "title": "Environment & Sustainability · 环境与可持续",
+      "vocab": [
+        {"t": "pollution", "p": "/pəˈluːʃn/", "m": "污染"},
+        {"t": "sustainable", "p": "/səˈsteɪnəbl/", "m": "可持续的"},
+        {"t": "emission", "p": "/ɪˈmɪʃn/", "m": "排放"},
+        {"t": "recycle", "p": "/ˌriːˈsaɪkl/", "m": "回收利用"},
+        {"t": "climate", "p": "/ˈklaɪmət/", "m": "气候"},
+        {"t": "renewable", "p": "/rɪˈnjuːəbl/", "m": "可再生的"},
+        {"t": "waste", "p": "/weɪst/", "m": "浪费；垃圾"},
+        {"t": "awareness", "p": "/əˈweərnəs/", "m": "意识"}
+      ],
+      "grammar": [
+        {"q": "If governments ___ action earlier, the damage would be less severe.", "o": ["had taken", "took", "take", "would take"], "a": 0, "tip": "对过去的虚拟：If + had done，主句 would do/would be。"},
+        {"q": "More and more households ___ solar panels to cut emissions.", "o": ["are installing", "is installing", "installs", "installed"], "a": 0, "tip": "households 是复数主语，be 动词用 are；现在进行时表正在发生的趋势。"},
+        {"q": "It is high time we ___ plastic waste seriously.", "o": ["treated", "treat", "will treat", "are treating"], "a": 0, "tip": "It is high time (that) + 过去式，表示«该是认真对待…的时候了»。"}
+      ],
+      "listen": [
+        {"t": "Renewable energy is becoming cheaper than coal in many countries.", "o": ["Renewable energy is becoming cheaper than coal in many countries.", "Coal is becoming cheaper than renewable energy.", "Renewable energy is banned in many countries."], "a": 0},
+        {"t": "Small daily habits can make a real difference to the planet.", "o": ["Small daily habits can make a real difference to the planet.", "Daily habits make no difference to the planet.", "Only factories can change the planet."], "a": 0}
+      ],
+      "speak": [
+        {"t": "Reducing plastic waste starts with small everyday choices.", "hint": "动名词 Reducing 开头重读，choices 句尾自然下降"},
+        {"t": "I try to recycle and take public transport whenever I can.", "hint": "whenever I can 轻快带过，不逐字重读"}
+      ]
+    }
+  ],
+  "C1": [
+    {
+      "id": "en-c1-u1",
+      "title": "Nuance & Rhetoric · 精准表达与修辞",
+      "vocab": [
+        {"t": "nuance", "p": "/ˈnjuːɑːns/", "m": "细微差别"},
+        {"t": "imply", "p": "/ɪmˈplaɪ/", "m": "暗示；意味着"},
+        {"t": "elaborate", "p": "/ɪˈlæbərət/", "m": "详尽阐述的"},
+        {"t": "persuade", "p": "/pərˈsweɪd/", "m": "说服"},
+        {"t": "concede", "p": "/kənˈsiːd/", "m": "承认（让步）"},
+        {"t": "metaphor", "p": "/ˈmetəfɔːr/", "m": "隐喻"},
+        {"t": "succinct", "p": "/səkˈsɪŋkt/", "m": "简洁的"},
+        {"t": "ambiguous", "p": "/æmˈbɪɡjuəs/", "m": "模棱两可的"}
+      ],
+      "grammar": [
+        {"q": "Not until the debate ended ___ how persuasive she had been.", "o": ["did I realize", "I realized", "I had realized", "did I realized"], "a": 0, "tip": "Not until 置于句首，主句部分倒装：did I realize。"},
+        {"q": "His argument was elegant, ___ somewhat detached from reality.", "o": ["if", "unless", "despite", "whereas"], "a": 0, "tip": "if 表«虽然/即便»的让步：elegant, if somewhat detached 虽优雅却略脱离现实。"},
+        {"q": "Were the data ___ complete, the conclusion would still be debatable.", "o": ["even", "ever", "yet", "still"], "a": 0, "tip": "even if 表«即使»；倒装省略 if 后保留 even。"}
+      ],
+      "listen": [
+        {"t": "The distinction between implying and stating is where persuasion begins.", "o": ["The distinction between implying and stating is where persuasion begins.", "Stating is more persuasive than implying.", "Persuasion begins with loud statements."], "a": 0},
+        {"t": "A single word, chosen poorly, can undermine an entire argument.", "o": ["A single word, chosen poorly, can undermine an entire argument.", "A well-chosen word can undermine an argument.", "Arguments don't depend on word choice."], "a": 0}
+      ],
+      "speak": [
+        {"t": "To put it succinctly, precision beats volume in any debate.", "hint": "to put it succinctly 插入语稍慢，主句语调自然下降"},
+        {"t": "I take your point, though I'd frame the question differently.", "hint": "though 前稍作停顿，differently 重读收尾"}
+      ]
+    }
+  ]
+}
