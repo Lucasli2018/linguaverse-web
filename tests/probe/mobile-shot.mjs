@@ -58,6 +58,22 @@ try {
   };
   await shot("#/", "F:/LLM/linguaverse-web/mobile-home.png");
   await shot("#/", "F:/LLM/linguaverse-web/mobile-menu.png", `document.querySelector("#navBurger").click()`);
+  // 学习页引导层（预置本地用户）
+  await cdp.eval(`(() => {
+    const db = { users: {}, session: null, posts: null };
+    db.users["领主"] = { name: "领主", pw: "x", created: Date.now(), xp: 42, days: {}, streak: 1, bestStreak: 3, ach: [],
+      enrolled: { en: "A1" }, progress: {}, moduleStat: { word: {c:0,r:0}, grammar: {c:0,r:0}, listen: {c:0,r:0}, speak: {c:0,r:0} }, srs: {}, wordbank: [], goal: 30 };
+    db.session = "领主";
+    localStorage.setItem("linguaverse_db_v1", JSON.stringify(db));
+    localStorage.removeItem("lv_guide_seen");
+  })()`);
+  await cdp.eval(`location.reload()`); await sleep(1000);
+  await cdp.send("Page.navigate", { url: BASE + "/index.html#/learn" });
+  await sleep(1200);
+  const img3 = await cdp.send("Page.captureScreenshot", { format: "png" });
+  const { writeFileSync } = await import("node:fs");
+  writeFileSync("F:/LLM/linguaverse-web/mobile-guide.png", Buffer.from(img3.data, "base64"));
+  console.log("saved F:/LLM/linguaverse-web/mobile-guide.png");
 } catch (e) {
   console.error("异常:", e.message); process.exitCode = 1;
 } finally { chrome.kill(); }

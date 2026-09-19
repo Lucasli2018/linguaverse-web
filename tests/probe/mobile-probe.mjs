@@ -27,11 +27,22 @@ class CDP {
       this.ws.send(JSON.stringify({ id, method, params }));
     });
   }
-  on(fn) { this.handlers.push(fn); }
   async eval(expr) {
     const r = await this.send("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true });
     if (r.exceptionDetails) throw new Error("page eval: " + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
     return r.result.value;
+  }
+  async click(x, y) {
+    await this.send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1, buttons: 1 });
+    await this.send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
+  }
+  async drag(x1, y1, x2, y2, steps = 6) {
+    await this.send("Input.dispatchMouseEvent", { type: "mousePressed", x: x1, y: y1, button: "left", clickCount: 1, buttons: 1 });
+    for (let i = 1; i <= steps; i++) {
+      await sleep(30);
+      await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x1 + (x2 - x1) * i / steps, y: y1 + (y2 - y1) * i / steps, buttons: 1 });
+    }
+    await this.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x2, y: y2, button: "left", clickCount: 1 });
   }
 }
 
@@ -68,7 +79,6 @@ try {
   ok(await noOverflow(), "首页 390px 无横向溢出");
   ok(await cdp.eval(`getComputedStyle(document.querySelector(".nav-links")).display === "none"`), "桌面导航链接在手机端隐藏");
   ok(await cdp.eval(`getComputedStyle(document.querySelector(".nav-burger")).display !== "none"`), "汉堡按钮可见");
-  // 汉堡按钮未被遮挡（elementFromPoint 命中自己）
   ok(await cdp.eval(`(() => { const b = document.querySelector("#navBurger"); const r = b.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width/2, r.y + r.height/2) === b; })()`), "汉堡按钮位于顶层可点");
 
   /* ---- 2. 打开菜单 ---- */
@@ -95,25 +105,60 @@ try {
       enrolled: { en: "A1" }, progress: {}, moduleStat: { word: {c:0,r:0}, grammar: {c:0,r:0}, listen: {c:0,r:0}, speak: {c:0,r:0} }, srs: {}, wordbank: [], goal: 30 };
     db.session = "领主";
     localStorage.setItem("linguaverse_db_v1", JSON.stringify(db));
+    localStorage.removeItem("lv_guide_seen"); // profile 复用，先清引导标记保证幂等
   })()`);
   await cdp.eval(`location.reload()`); // 让脚本重新 loadDB，会话才生效
   await sleep(900);
   await goto("#/learn");
+
+  /* ---- 5a. 首次引导 ---- */
+  ok(await cdp.eval(`!!document.getElementById("guideMask")`), "首次进入学习页弹出引导层");
+  ok(await cdp.eval(`document.querySelector("#guideMask .g-art").textContent === "👋"`), "引导第一步内容正确");
+  await cdp.eval(`window.guideNext(); window.guideNext();`); await sleep(150);
+  ok(await cdp.eval(`document.querySelector("#guideMask .g-art").textContent === "👉"`), "「下一步」推进到手势说明步骤");
+  await cdp.eval(`window.guideNext(); window.guideNext();`); await sleep(250);
+  ok(await cdp.eval(`!document.getElementById("guideMask")`), "走完 4 步后引导关闭");
+  ok(await cdp.eval(`localStorage.getItem("lv_guide_seen") === "1"`), "引导已读标记落库");
+
+  /* ---- 5b. 学习页基础（引导关闭后） ---- */
   ok(await noOverflow(), "学习页无横向溢出");
   ok(await cdp.eval(`document.querySelectorAll(".tabs button").length === 4`), "学习页四个模块 Tab 正常");
   ok(await cdp.eval(`(() => { const b = document.querySelector("#navBurger"); const r = b.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width/2, r.y + r.height/2) === b; })()`), "学习页汉堡按钮未被 Tab/元素遮挡");
   ok(await cdp.eval(`getComputedStyle(document.querySelector(".kbd-hint")).display === "none"`), "键盘快捷键提示在手机端隐藏");
 
-  /* ---- 6. 学习进度页（热力图可横向滚动、整页不溢出） ---- */
+  /* ---- 5c. 二次进入不再弹引导 ---- */
+  await goto("#/progress"); await goto("#/learn");
+  ok(await cdp.eval(`!document.getElementById("guideMask")`), "二次进入学习页不再弹引导");
+
+  /* ---- 6. 滑动/轻点手势（CDP 真实鼠标事件驱动 pointer） ---- */
+  await cdp.eval(`document.querySelector(".flash").scrollIntoView({ block: "center" })`);
+  await sleep(300);
+  const rect = await cdp.eval(`(() => { const r = document.querySelector(".flash[data-swipe='vocab']").getBoundingClientRect(); return { x: r.x + r.width/2, y: r.y + r.height/2 }; })()`);
+  // 6a. 轻点 → 翻转
+  await cdp.click(rect.x, rect.y); await sleep(350);
+  ok(await cdp.eval(`!!document.querySelector(".flash.flip")`), "轻点卡片触发翻转");
+  // 6b. 右滑 → 我认识了 → 进入第 2 张
+  await cdp.drag(rect.x, rect.y, rect.x + 150, rect.y); await sleep(700);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 2 /")`), "右滑卡片 = 我认识了，推进到第 2 张");
+  // 6c. 位移不足 → 回弹不误判
+  await cdp.drag(rect.x, rect.y, rect.x + 22, rect.y); await sleep(500);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 2 /")`), "小幅拖动回弹，不误评分");
+  // 6d. 左滑 → 还不认识 → 第 3 张（且进生词本）
+  await cdp.drag(rect.x, rect.y, rect.x - 150, rect.y); await sleep(700);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 3 /")`), "左滑卡片 = 还不认识，推进到第 3 张");
+  // 6e. 手势提示行可见
+  ok(await cdp.eval(`getComputedStyle(document.querySelector(".swipe-hint")).display === "block"`), "手势提示行在手机端可见");
+
+  /* ---- 7. 学习进度页（热力图可横向滚动、整页不溢出） ---- */
   await goto("#/progress");
   ok(await noOverflow(), "学习进度页无横向溢出");
   ok(await cdp.eval(`(() => { const g = getComputedStyle(document.querySelector(".stat-grid")).gridTemplateColumns.split(" ").length; return g === 2; })()`), "统计栅格 2 列");
 
-  /* ---- 7. 社区页 ---- */
+  /* ---- 8. 社区页 ---- */
   await goto("#/community");
   ok(await noOverflow(), "社区页无横向溢出");
 
-  /* ---- 8. 课程详情（等级阶梯布局） ---- */
+  /* ---- 9. 课程详情（等级阶梯布局） ---- */
   await goto("#/course/en");
   ok(await noOverflow(), "课程详情页无横向溢出");
 

@@ -114,6 +114,26 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .rate-no{background:#fee2e2;color:#b91c1c}.rate-no:hover{background:#fecaca}
 .rate-yes{background:#d1fae5;color:#047857}.rate-yes:hover{background:#a7f3d0}
 
+/* 滑动手势卡 */
+.flash[data-swipe]{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.flash[data-swipe].sw-anim{transition:transform .25s ease,opacity .25s ease}
+.swipe-hint{display:none;margin-top:12px;font-size:12px;color:var(--muted)}
+@media(max-width:900px){.swipe-hint{display:block}}
+
+/* 首次学习引导 */
+.guide-mask{position:fixed;inset:0;background:rgba(15,18,35,.62);backdrop-filter:blur(3px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;animation:gf .25s}
+@keyframes gf{from{opacity:0}to{opacity:1}}
+.guide-card{background:var(--panel);border-radius:20px;padding:30px 26px 22px;max-width:330px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:gu .3s}
+@keyframes gu{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.guide-card .g-art{font-size:52px;line-height:1;margin-bottom:14px}
+.guide-card h3{font-size:19px;margin-bottom:10px}
+.guide-card p{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:18px}
+.guide-dots{display:flex;gap:7px;justify-content:center;margin-bottom:16px}
+.guide-dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.2s}
+.guide-dots i.on{background:var(--pri);width:20px;border-radius:99px}
+.guide-btns{display:flex;gap:10px}
+.guide-btns .btn{flex:1}
+
 .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--line);border-radius:11px;font-size:14.5px;margin-bottom:10px;background:var(--surface);transition:.14s}
 .q-opt:hover{border-color:var(--pri)}
 .q-opt.right{border-color:var(--ok);background:#ecfdf5}
@@ -1034,7 +1054,7 @@ function modVocab(unit, done){
   const w = unit.vocab[i];
   return `<div class="flash-wrap">
     <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span>第 ${i + 1} / ${unit.vocab.length} 张</span><span>已认识 ${st.vocab} 个</span></div>
-    <div class="flash ${ui.flashFlip ? "flip" : ""}" onclick="flipCard()"><div class="flash-in">
+    <div class="flash ${ui.flashFlip ? "flip" : ""}" data-swipe="vocab"><div class="flash-in">
       <div class="flash-face flash-front"><div class="word">${esc(w.t)}</div><div class="phon">${esc(w.p)}</div><div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
       <div class="flash-face flash-back"><div class="m">${esc(w.m)}</div><div class="s">${esc(w.t)} · ${esc(w.p)}</div></div>
     </div></div>
@@ -1043,6 +1063,7 @@ function modVocab(unit, done){
       <button class="rate rate-no" onclick="rateWord(false)">😵 还不认识</button>
       <button class="rate rate-yes" onclick="rateWord(true)">😎 我认识了</button>
     </div>
+    <div class="swipe-hint">💡 也可以直接滑卡片：<b>右滑 = 我认识了</b> · <b>左滑 = 还不认识</b> · 轻点 = 翻转</div>
     ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:14px">🎉 本模块已全部完成，可随时回来复习</p>` : ""}
   </div>`;
 }
@@ -1479,7 +1500,7 @@ function viewReview(){
   const card = due.length ? due[idx] : null;
   const recHTML = card ? `<div class="flash-wrap">
     <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span>待复习 ${idx + 1} / ${due.length}</span><span>${LANGS[card.lang].flag} ${LANGS[card.lang].name}</span></div>
-    <div class="flash ${ui.reviewFlip ? "flip" : ""}" onclick="flipReview()"><div class="flash-in">
+    <div class="flash ${ui.reviewFlip ? "flip" : ""}" data-swipe="review" data-idx="${idx}"><div class="flash-in">
       <div class="flash-face flash-front"><div class="word">${esc(card.t)}</div>${card.p ? `<div class="phon">${esc(card.p)}</div>` : ""}<div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
       <div class="flash-face flash-back"><div class="m">${esc(card.m || "（回顾）")}</div><div class="s">${esc(card.t)}</div></div>
     </div></div>
@@ -1490,6 +1511,7 @@ function viewReview(){
       <button class="rate rate-yes" style="background:#dbeafe;color:#1d4ed8" onclick="rateReview(${idx},4)">🙂 记得</button>
       <button class="rate rate-yes" onclick="rateReview(${idx},5)">😎 很熟</button>
     </div>
+    <div class="swipe-hint">💡 滑动卡片：<b>右滑 = 很熟</b> · <b>左滑 = 忘了</b> · 轻点 = 翻转</div>
   </div>` : `<div class="empty">🎉 今天没有待复习的单词，太棒了！<br>去单词记忆模块学新词，明后天会按记忆曲线自动提醒你回来复习。</div>`;
   const bankHTML = bank.length ? bank.map((b, i) => `<div class="card" style="display:flex;gap:12px;align-items:center;padding:14px 16px;margin-bottom:10px">
       <div style="font-size:22px">${LANGS[b.lang].flag}</div>
@@ -1652,7 +1674,90 @@ function render(page){
     achievements: viewAchievements, login: viewLogin, register: viewRegister,
   };
   app.innerHTML = (views[page] || viewHome)();
+  afterRender(page);
 }
+
+/* ---------- 移动端手势：滑动评分 / 轻点翻转 ---------- */
+function attachSwipe(el, cfg){
+  let sx = 0, sy = 0, dx = 0, dy = 0, down = false, dragging = false, pid = null;
+  el.addEventListener("pointerdown", e => {
+    if (e.button) return;
+    down = true; dragging = false; sx = e.clientX; sy = e.clientY; dx = dy = 0; pid = e.pointerId;
+    try { el.setPointerCapture(pid); } catch (_){}
+  });
+  el.addEventListener("pointermove", e => {
+    if (!down || e.pointerId !== pid) return;
+    dx = e.clientX - sx; dy = e.clientY - sy;
+    if (!dragging && Math.hypot(dx, dy) > 6) dragging = true;
+    if (dragging){
+      el.classList.remove("sw-anim");
+      const rot = dx * 0.05, ty = Math.max(-10, Math.min(10, dy * 0.15));
+      el.style.transform = `translate(${dx}px,${ty}px) rotate(${rot}deg)`;
+      el.style.opacity = String(1 - Math.min(0.35, Math.abs(dx) / 420));
+    }
+  });
+  const up = e => {
+    if (!down || e.pointerId !== pid) return;
+    down = false;
+    if (!dragging){ cfg.onTap && cfg.onTap(); return; } // 未位移 → 视为轻点
+    const horiz = Math.abs(dx) > Math.abs(dy) * 1.3;
+    el.classList.add("sw-anim");
+    if (horiz && dx > 72){ swipeFly(el, dx); cfg.onRight && setTimeout(cfg.onRight, 220); }
+    else if (horiz && dx < -72){ swipeFly(el, dx); cfg.onLeft && setTimeout(cfg.onLeft, 220); }
+    else { el.style.transform = ""; el.style.opacity = ""; } // 位移不足 → 回弹
+    dragging = false;
+  };
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+}
+function swipeFly(el, dx){
+  el.style.transform = `translateX(${dx > 0 ? 260 : -260}px) rotate(${dx > 0 ? 18 : -18}deg)`;
+  el.style.opacity = "0";
+}
+function afterRender(page){
+  document.querySelectorAll(".flash[data-swipe]").forEach(el => {
+    const kind = el.dataset.swipe;
+    if (kind === "vocab") attachSwipe(el, { onTap: window.flipCard, onRight: () => window.rateWord(true), onLeft: () => window.rateWord(false) });
+    else if (kind === "review"){
+      const idx = +el.dataset.idx || 0;
+      attachSwipe(el, { onTap: window.flipReview, onRight: () => window.rateReview(idx, 5), onLeft: () => window.rateReview(idx, 0) });
+    }
+  });
+  if (page === "learn" && document.querySelector(".tabs")) maybeGuide(); // 学习页真正渲染成功才弹引导
+}
+
+/* ---------- 首次学习引导（4 步，看过不再弹） ---------- */
+const GUIDE_STEPS = [
+  { art: "👋", title: "欢迎来到学习页", text: "上方可切换语言与单元，下方四个模块 Tab 依次学习：单词 → 语法 → 听力 → 口语。" },
+  { art: "🃏", title: "点击卡片翻转", text: "单词卡轻点翻面查看释义，点「🔊 听发音」可听标准读音。" },
+  { art: "👉", title: "滑一滑更顺手", text: "手机上：右滑卡片 = 我认识了，左滑 = 还不认识，轻点 = 翻转。电脑端可用空格与 ← → 快捷键。" },
+  { art: "✅", title: "完成即点亮", text: "四个模块全部完成即可点亮本单元，进度自动保存并同步云端。开始学习吧！" },
+];
+function guideSeen(){ try { return !!localStorage.getItem("lv_guide_seen"); } catch (e){ return false; } }
+function maybeGuide(){
+  if (guideSeen() || document.getElementById("guideMask")) return;
+  ui.guideStep = 0;
+  const mask = document.createElement("div");
+  mask.id = "guideMask"; mask.className = "guide-mask";
+  document.body.appendChild(mask);
+  paintGuide();
+}
+function paintGuide(){
+  const mask = document.getElementById("guideMask"); if (!mask) return;
+  if (ui.guideStep >= GUIDE_STEPS.length) { window.guideDone(); return; }
+  const s = GUIDE_STEPS[ui.guideStep], last = ui.guideStep === GUIDE_STEPS.length - 1;
+  mask.innerHTML = `<div class="guide-card">
+    <div class="g-art">${s.art}</div><h3>${s.title}</h3><p>${s.text}</p>
+    <div class="guide-dots">${GUIDE_STEPS.map((_, i) => `<i class="${i === ui.guideStep ? "on" : ""}"></i>`).join("")}</div>
+    <div class="guide-btns"><button class="btn btn-ghost" onclick="guideDone()">跳过</button><button class="btn btn-pri" onclick="guideNext()">${last ? "开始学习 🚀" : "下一步"}</button></div>
+  </div>`;
+}
+window.guideNext = function(){ ui.guideStep = (ui.guideStep || 0) + 1; paintGuide(); };
+window.guideDone = function(){
+  try { localStorage.setItem("lv_guide_seen", "1"); } catch (e){}
+  const m = document.getElementById("guideMask"); if (m) m.remove();
+  ui.guideStep = 0;
+};
 if (location.protocol.indexOf("http") === 0 && "serviceWorker" in navigator) {
   window.addEventListener("load", function(){ navigator.serviceWorker.register("/sw.js").catch(function(){}); });
 }
