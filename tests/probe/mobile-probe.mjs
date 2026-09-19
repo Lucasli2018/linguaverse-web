@@ -146,8 +146,16 @@ try {
   // 6d. 左滑 → 还不认识 → 第 3 张（且进生词本）
   await cdp.drag(rect.x, rect.y, rect.x - 150, rect.y); await sleep(700);
   ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 3 /")`), "左滑卡片 = 还不认识，推进到第 3 张");
+  // 6d2. 斜向滑动（竖向偏移大）也能评分——真机手抖场景
+  await cdp.drag(rect.x, rect.y, rect.x + 150, rect.y - 120); await sleep(700);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 4 /")`), "斜向右滑（手抖）仍正常评分推进");
   // 6e. 手势提示行可见
   ok(await cdp.eval(`getComputedStyle(document.querySelector(".swipe-hint")).display === "block"`), "手势提示行在手机端可见");
+  // 6e2. 上一题/下一题按钮导航（不评分，只移动）
+  await cdp.eval(`window.nextCard()`); await sleep(300);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 5 /")`), "「下一题 →」按钮前进一张");
+  await cdp.eval(`window.prevCard()`); await sleep(300);
+  ok(await cdp.eval(`document.querySelector(".flash-wrap > div").textContent.includes("第 4 /")`), "「← 上一题」按钮返回一张");
 
   /* ---- 6f. XP 防刷：首答才发 XP，重复作答不再加 ---- */
   const xpBefore = await cdp.eval(`curUser().xp`);

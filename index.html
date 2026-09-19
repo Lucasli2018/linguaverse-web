@@ -115,7 +115,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .rate-yes{background:#d1fae5;color:#047857}.rate-yes:hover{background:#a7f3d0}
 
 /* 滑动手势卡 */
-.flash[data-swipe]{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.flash[data-swipe],.flash[data-swipe] *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .flash[data-swipe].sw-anim{transition:transform .25s ease,opacity .25s ease}
 .swipe-hint{display:none;margin-top:12px;font-size:12px;color:var(--muted)}
 @media(max-width:900px){.swipe-hint{display:block}}
@@ -830,9 +830,10 @@ function route(){
   ui.lang = p1 || ui.lang;
   ui.page = page;
   render(page);
-  window.scrollTo(0, 0);
+  // 页内交互（评分/翻卡/切模块等直接调 route）保持滚动位置；
+  // 只有 hash 变化（真正换页）才在下方 hashchange 监听里回到顶部
 }
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
 
 /* ---------- 布局骨架 ---------- */
 function navHTML(page){
@@ -1058,16 +1059,29 @@ function modVocab(unit, done){
       <div class="flash-face flash-front"><div class="word">${esc(w.t)}</div><div class="phon">${esc(w.p)}</div><div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
       <div class="flash-face flash-back"><div class="m">${esc(w.m)}</div><div class="s">${esc(w.t)} · ${esc(w.p)}</div></div>
     </div></div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakWord('${esc(w.t).replace(/'/g, "\\'")}')">🔊 听发音</button></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" ${i <= 0 ? "disabled" : ""} onclick="prevCard()">← 上一题</button>
+      <button class="btn btn-ghost btn-sm" onclick="speakWord('${esc(w.t).replace(/'/g, "\\'")}')">🔊 听发音</button>
+      <button class="btn btn-ghost btn-sm" ${i >= unit.vocab.length - 1 ? "disabled" : ""} onclick="nextCard()">下一题 →</button>
+    </div>
     <div class="rate-row">
       <button class="rate rate-no" onclick="rateWord(false)">😵 还不认识</button>
       <button class="rate rate-yes" onclick="rateWord(true)">😎 我认识了</button>
     </div>
-    <div class="swipe-hint">💡 也可以直接滑卡片：<b>右滑 = 我认识了</b> · <b>左滑 = 还不认识</b> · 轻点 = 翻转</div>
+    <div class="swipe-hint">💡 滑动卡片：<b>右滑 = 我认识了</b> · <b>左滑 = 还不认识</b> · 也可用下方按钮切换</div>
     ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:14px">🎉 本模块已全部完成，可随时回来复习（复习不再计 XP）</p>` : ""}
   </div>`;
 }
 window.flipCard = () => { ui.flashFlip = !ui.flashFlip; route(); };
+/* 浏览式导航：上一题/下一题只移动卡片，不评分不发 XP */
+window.prevCard = function(){
+  const unit = currentUnit(); if (!unit || ui.flashIdx <= 0) return;
+  ui.flashIdx--; ui.flashFlip = false; route();
+};
+window.nextCard = function(){
+  const unit = currentUnit(); if (!unit || ui.flashIdx >= unit.vocab.length - 1) return;
+  ui.flashIdx++; ui.flashFlip = false; route();
+};
 window.speakWord = t => tts(t, LANGS[ui.lang].speech);
 window.rateWord = function(ok){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
@@ -1520,14 +1534,18 @@ function viewReview(){
       <div class="flash-face flash-front"><div class="word">${esc(card.t)}</div>${card.p ? `<div class="phon">${esc(card.p)}</div>` : ""}<div style="font-size:12.5px;color:var(--muted)">点击卡片查看释义</div></div>
       <div class="flash-face flash-back"><div class="m">${esc(card.m || "（回顾）")}</div><div class="s">${esc(card.t)}</div></div>
     </div></div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn btn-ghost btn-sm" onclick="speakDue(${idx})">🔊 听发音</button></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" ${idx <= 0 ? "disabled" : ""} onclick="prevReview()">← 上一题</button>
+      <button class="btn btn-ghost btn-sm" onclick="speakDue(${idx})">🔊 听发音</button>
+      <button class="btn btn-ghost btn-sm" ${idx >= due.length - 1 ? "disabled" : ""} onclick="nextReview()">下一题 →</button>
+    </div>
     <div class="rate-row">
       <button class="rate rate-no" onclick="rateReview(${idx},0)">😵 忘了</button>
       <button class="rate rate-no" style="background:#fef3c7;color:#b45309" onclick="rateReview(${idx},3)">🤔 模糊</button>
       <button class="rate rate-yes" style="background:#dbeafe;color:#1d4ed8" onclick="rateReview(${idx},4)">🙂 记得</button>
       <button class="rate rate-yes" onclick="rateReview(${idx},5)">😎 很熟</button>
     </div>
-    <div class="swipe-hint">💡 滑动卡片：<b>右滑 = 很熟</b> · <b>左滑 = 忘了</b> · 轻点 = 翻转</div>
+    <div class="swipe-hint">💡 滑动卡片：<b>右滑 = 很熟</b> · <b>左滑 = 忘了</b> · 也可用下方按钮切换</div>
   </div>` : `<div class="empty">🎉 今天没有待复习的单词，太棒了！<br>去单词记忆模块学新词，明后天会按记忆曲线自动提醒你回来复习。</div>`;
   const bankHTML = bank.length ? bank.map((b, i) => `<div class="card" style="display:flex;gap:12px;align-items:center;padding:14px 16px;margin-bottom:10px">
       <div style="font-size:22px">${LANGS[b.lang].flag}</div>
@@ -1545,6 +1563,15 @@ function viewReview(){
   </div></section>${footHTML()}`;
 }
 window.flipReview = () => { ui.reviewFlip = !ui.reviewFlip; route(); };
+window.prevReview = function(){
+  const u = curUser(); if (!u || (ui.reviewIdx || 0) <= 0) return;
+  ui.reviewIdx--; ui.reviewFlip = false; route();
+};
+window.nextReview = function(){
+  const u = curUser(); if (!u) return;
+  const due = srsDue(u); if (ui.reviewIdx >= due.length - 1) return;
+  ui.reviewIdx = (ui.reviewIdx || 0) + 1; ui.reviewFlip = false; route();
+};
 window.speakDue = function(i){
   const u = curUser(); if (!u) return;
   const d = srsDue(u)[i]; if (d) tts(d.t, LANGS[d.lang].speech);
@@ -1716,10 +1743,10 @@ function attachSwipe(el, cfg){
     if (!down || e.pointerId !== pid) return;
     down = false;
     if (!dragging){ cfg.onTap && cfg.onTap(); return; } // 未位移 → 视为轻点
-    const horiz = Math.abs(dx) > Math.abs(dy) * 1.3;
+    const horiz = Math.abs(dx) > Math.abs(dy) * 1.1; // 斜向容忍放宽，真机手抖竖向偏移大也能触发
     el.classList.add("sw-anim");
-    if (horiz && dx > 72){ swipeFly(el, dx); cfg.onRight && setTimeout(cfg.onRight, 220); }
-    else if (horiz && dx < -72){ swipeFly(el, dx); cfg.onLeft && setTimeout(cfg.onLeft, 220); }
+    if (horiz && dx > 56){ swipeFly(el, dx); cfg.onRight && setTimeout(cfg.onRight, 220); }
+    else if (horiz && dx < -56){ swipeFly(el, dx); cfg.onLeft && setTimeout(cfg.onLeft, 220); }
     else { el.style.transform = ""; el.style.opacity = ""; } // 位移不足 → 回弹
     dragging = false;
   };
