@@ -5,7 +5,7 @@ compatibility_date = "2024-09-23"
 # Pages Functions 的 D1 绑定。注意：账户内 D1 数据库尚未创建成功（2026-09-17 验证
 # 服务端报 database not found），当前线上部署不带 D1 绑定，前端走本地缓存兜底。
 # 待创建 D1 后再取消注释并填真实 id。
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "linguaverse"
-# database_id = "REPLACE_WITH_D1_ID"
+[[d1_databases]]
+binding = "DB"
+database_name = "linguaverse"
+database_id = "2e3abcd8-a3e4-4f81-8e2b-7b46ac05fd93"
