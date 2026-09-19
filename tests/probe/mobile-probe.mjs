@@ -149,6 +149,18 @@ try {
   // 6e. 手势提示行可见
   ok(await cdp.eval(`getComputedStyle(document.querySelector(".swipe-hint")).display === "block"`), "手势提示行在手机端可见");
 
+  /* ---- 6f. XP 防刷：首答才发 XP，重复作答不再加 ---- */
+  const xpBefore = await cdp.eval(`curUser().xp`);
+  await cdp.eval(`for (let k = 0; k < 8; k++) window.rateWord(true);`); // 首答刷完全部 8 张
+  await sleep(400);
+  const xpAfterFirst = await cdp.eval(`curUser().xp`);
+  ok(xpAfterFirst > xpBefore, "首答 8 张正常获得 XP");
+  await cdp.eval(`window.rateWord(true);`); // 模块已完成，重复作答
+  await sleep(400);
+  const xpAfterRepeat = await cdp.eval(`curUser().xp`);
+  ok(xpAfterRepeat === xpAfterFirst, `模块完成后重复作答不再加 XP（${xpAfterRepeat} === ${xpAfterFirst}）`);
+  ok(await cdp.eval(`curUser().moduleStat.word.c >= 9`), "重复作答仍计入练习统计");
+
   /* ---- 7. 学习进度页（热力图可横向滚动、整页不溢出） ---- */
   await goto("#/progress");
   ok(await noOverflow(), "学习进度页无横向溢出");

@@ -1064,7 +1064,7 @@ function modVocab(unit, done){
       <button class="rate rate-yes" onclick="rateWord(true)">😎 我认识了</button>
     </div>
     <div class="swipe-hint">💡 也可以直接滑卡片：<b>右滑 = 我认识了</b> · <b>左滑 = 还不认识</b> · 轻点 = 翻转</div>
-    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:14px">🎉 本模块已全部完成，可随时回来复习</p>` : ""}
+    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:14px">🎉 本模块已全部完成，可随时回来复习（复习不再计 XP）</p>` : ""}
   </div>`;
 }
 window.flipCard = () => { ui.flashFlip = !ui.flashFlip; route(); };
@@ -1072,14 +1072,15 @@ window.speakWord = t => tts(t, LANGS[ui.lang].speech);
 window.rateWord = function(ok){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
   const i = ui.flashIdx;
+  const first = !((unitRec(u, unit).vocab || []).includes(i)); // 首答判定：XP 只发一次
   markDone(u, unit, "vocab", i);
   const _w = unit.vocab[i];
   if (ok) srsUpsert(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang }, 5);
   else { srsUpsert(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang }, 1); wordbankAdd(u, { t: _w.t, m: _w.m, p: _w.p, lang: ui.lang, src: "vocab" }); }
   u.moduleStat.word.c++; if (ok) u.moduleStat.word.r++;
-  gainXP(u, ok ? XP.word : 1);
+  if (first) gainXP(u, ok ? XP.word : 1);
   ui.flashFlip = false;
-  if (ui.flashIdx < unit.vocab.length - 1) { ui.flashIdx++; toast(ok ? `+${XP.word} XP` : "+1 XP，回卡片再见它一次～"); }
+  if (ui.flashIdx < unit.vocab.length - 1) { ui.flashIdx++; toast(first ? (ok ? `+${XP.word} XP` : "+1 XP，回卡片再见它一次～") : "🔁 复习巩固，本题 XP 已计入过"); }
   else { toast("🃏 单词记忆模块完成！", "ok"); checkAch(u); }
   route();
 };
@@ -1095,17 +1096,24 @@ function modGrammar(unit, done){
     ${q.o.map((o, oi) => `<button class="q-opt ${revealed ? (oi === q.a ? "right" : oi === picked ? "wrong" : "") : ""}" ${revealed ? "disabled" : ""} onclick="pickGrammar(${oi})">${String.fromCharCode(65 + oi)}. ${esc(o)}</button>`).join("")}
     ${revealed ? `<div class="tip-box">💡 ${esc(q.tip)}</div>
       <div style="text-align:center;margin-top:16px"><button class="btn btn-pri" onclick="nextGrammar()">${i < unit.grammar.length - 1 ? "下一题 →" : "完成练习 🎉"}</button></div>` : ""}
-    ${done && !revealed ? `<p style="text-align:center;color:var(--ok);font-size:13px">🎉 本模块已全部完成，可反复练习巩固</p>` : ""}
+    ${done && !revealed ? `<p style="text-align:center;color:var(--ok);font-size:13px">🎉 本模块已全部完成，可反复练习巩固（复习不再计 XP）</p>` : ""}
   </div>`;
 }
 window.pickGrammar = function(oi){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
   const q = unit.grammar[ui.quizIdx];
+  const first = !((unitRec(u, unit).grammar || []).includes(ui.quizIdx)); // 首答判定
   ui.quizPick = oi;
   markDone(u, unit, "grammar", ui.quizIdx);
   u.moduleStat.grammar.c++;
-  if (oi === q.a) { u.moduleStat.grammar.r++; gainXP(u, XP.grammar); toast(`回答正确！+${XP.grammar} XP`, "ok"); }
-  else { wordbankAdd(u, { t: q.q, m: q.tip, p: "", lang: ui.lang, src: "grammar" }); gainXP(u, 1); toast("答错啦，看看解析记住它～", "bad"); }
+  if (oi === q.a) {
+    u.moduleStat.grammar.r++;
+    if (first) { gainXP(u, XP.grammar); toast(`回答正确！+${XP.grammar} XP`, "ok"); }
+    else toast("🔁 复习巩固，本题 XP 已计入过");
+  } else {
+    if (first) { wordbankAdd(u, { t: q.q, m: q.tip, p: "", lang: ui.lang, src: "grammar" }); gainXP(u, 1); toast("答错啦，看看解析记住它～", "bad"); }
+    else toast("答错啦，看看解析记住它～", "bad");
+  }
   route();
 };
 window.nextGrammar = function(){
@@ -1126,7 +1134,7 @@ function modListen(unit, done){
     ${q.o.map((o, oi) => `<button class="q-opt ${revealed ? (oi === q.a ? "right" : oi === picked ? "wrong" : "") : ""}" style="text-align:left" ${revealed ? "disabled" : ""} onclick="pickListen(${oi})">${String.fromCharCode(65 + oi)}. ${esc(o)}</button>`).join("")}
     ${revealed ? `<div class="tip-box" style="text-align:left">原文：${esc(q.t)}</div>
       <div style="margin-top:16px"><button class="btn btn-pri" onclick="nextListen()">${i < unit.listen.length - 1 ? "下一题 →" : "完成训练 🎉"}</button></div>` : ""}
-    ${done && !revealed ? `<p style="color:var(--ok);font-size:13px">🎉 本模块已全部完成</p>` : ""}
+    ${done && !revealed ? `<p style="color:var(--ok);font-size:13px">🎉 本模块已全部完成（复习不再计 XP）</p>` : ""}
   </div>`;
 }
 window.playListen = function(){
@@ -1137,11 +1145,18 @@ window.playListen = function(){
 window.pickListen = function(oi){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
   const q = unit.listen[ui.listenIdx];
+  const first = !((unitRec(u, unit).listen || []).includes(ui.listenIdx)); // 首答判定
   ui.listenPick = oi;
   markDone(u, unit, "listen", ui.listenIdx);
   u.moduleStat.listen.c++;
-  if (oi === q.a) { u.moduleStat.listen.r++; gainXP(u, XP.listen); toast(`听对了！+${XP.listen} XP`, "ok"); }
-  else { wordbankAdd(u, { t: q.t, m: "听力原句", p: "", lang: ui.lang, src: "listen" }); gainXP(u, 1); toast("再听一遍原文，加深印象～", "bad"); }
+  if (oi === q.a) {
+    u.moduleStat.listen.r++;
+    if (first) { gainXP(u, XP.listen); toast(`听对了！+${XP.listen} XP`, "ok"); }
+    else toast("🔁 复习巩固，本题 XP 已计入过");
+  } else {
+    if (first) { wordbankAdd(u, { t: q.t, m: "听力原句", p: "", lang: ui.lang, src: "listen" }); gainXP(u, 1); toast("再听一遍原文，加深印象～", "bad"); }
+    else toast("再听一遍原文，加深印象～", "bad");
+  }
   route();
 };
 window.nextListen = function(){
@@ -1169,7 +1184,7 @@ function modSpeak(unit, done){
       <button class="rate rate-no" onclick="rateSpeak(false)">🔁 再练一次</button>
       <button class="rate rate-yes" onclick="rateSpeak(true)">✅ 这句我读得不错</button>
     </div>
-    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 本模块已全部完成</p>` : ""}
+    ${done ? `<p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 本模块已全部完成（复习不再计 XP）</p>` : ""}
   </div>`;
 }
 window.playSpeak = function(){
@@ -1200,10 +1215,11 @@ function sim(a, b){ // 粗略相似度（公共字符比例）
 }
 window.rateSpeak = function(ok){
   const u = curUser(); const unit = currentUnit(); if (!unit) return;
+  const first = !((unitRec(u, unit).speak || []).includes(ui.speakIdx)); // 首答判定
   markDone(u, unit, "speak", ui.speakIdx);
   u.moduleStat.speak.c++; if (ok) u.moduleStat.speak.r++;
-  gainXP(u, ok ? XP.speak : 1);
-  if (ui.speakIdx < unit.speak.length - 1) { ui.speakIdx++; toast(ok ? `+${XP.speak} XP` : "+1 XP"); }
+  if (first) gainXP(u, ok ? XP.speak : 1);
+  if (ui.speakIdx < unit.speak.length - 1) { ui.speakIdx++; toast(first ? (ok ? `+${XP.speak} XP` : "+1 XP") : "🔁 复习巩固，本题 XP 已计入过"); }
   else { toast("🎙️ 口语跟读模块完成！", "ok"); checkAch(u); }
   route();
 };
