@@ -2,9 +2,8 @@ name = "linguaverse-web"
 pages_build_output_dir = "."
 compatibility_date = "2024-09-23"
 
-# Pages Functions 的 D1 绑定。注意：账户内 D1 数据库尚未创建成功（2026-09-17 验证
-# 服务端报 database not found），当前线上部署不带 D1 绑定，前端走本地缓存兜底。
-# 待创建 D1 后再取消注释并填真实 id。
+# Pages Functions 的 D1 绑定（2026-09-19 已启用，database_id 为真实值）。
+# 服务端建表/读写所用的 API Token 需具备 D1 的 Edit 权限，且资源范围覆盖本库。
 [[d1_databases]]
 binding = "DB"
 database_name = "linguaverse"
