@@ -45,11 +45,11 @@ python -m http.server 8611
 # 首次：浏览器 OAuth 登录 Cloudflare（一次性）
 powershell -ExecutionPolicy Bypass -File deploy.ps1 -Login
 
-# 部署 / 更新（会自动建 D1 库、执行 schema、注入 database_id）
+# 部署 / 更新（会自动复用 dev D1 库、执行 lv_ 前缀 schema，database_id 已预填）
 powershell -ExecutionPolicy Bypass -File deploy.ps1
 ```
 
-部署成功后访问 `https://linguaverse.pages.dev`。
+部署成功后访问 `https://linguaverse-web.pages.dev`。
 
 也可以用 API Token 方式（ dash.cloudflare.com → My Profile → API Tokens，创建带 **Cloudflare Pages: Edit** 权限的令牌）：
 
@@ -61,10 +61,9 @@ powershell -ExecutionPolicy Bypass -File deploy.ps1
 手动步骤等价于：
 
 ```bash
-npx wrangler d1 create linguaverse
-npx wrangler d1 execute linguaverse --file=./schema.sql
-# 把 wrangler.toml 里的 database_id 占位符换成真实 id
-npx wrangler pages deploy . --project-name=linguaverse
+# dev 为已存在的共享 D1 库（database_id 已预填在 wrangler.toml，无需替换占位符）
+npx wrangler d1 execute dev --file=./schema.sql   # IF NOT EXISTS 幂等，存量库安全
+npx wrangler pages deploy . --project-name=linguaverse-web
 ```
 
 ## 测试
@@ -82,7 +81,7 @@ node tests/srs.test.js
 
 - **单文件零依赖**：核心 HTML/CSS/JS 内联在 `index.html`，无构建、无 npm、无 CDN 外链，国内外网络均可秒开。
 - **课程数据外置（v1.3.0）**：新增 B2/C1 及扩展单元放 `data/{en,ja,ko}.json`，HTTP 访问时按需 fetch 热更；`file://` 双击直开时自动降级为内嵌 A1→B1 课程，功能完整。
-- **云端后端（P1）**：Cloudflare Pages Functions（`functions/api/*.js`）+ D1。注册/登录走 API，密码用 Workers 原生 Web Crypto（PBKDF2-SHA256）哈希，会话用 HttpOnly + SameSite=Lax Cookie。前端 store 层为「API 优先 + 本地缓存兜底」：写点先落本地再异步 PUT `/api/me`，离线进队列、联网重试；无后端时纯本地降级。
+- **云端后端（P1）**：Cloudflare Pages Functions（`functions/api/*.js`）+ D1。注册/登录走 API，密码用 Workers 原生 Web Crypto（PBKDF2-SHA256）哈希，会话用 HttpOnly + SameSite=Lax Cookie。D1 绑定到共享库 `dev`（`database_id` 见 `wrangler.toml`），**所有表带 `lv_` 前缀**（`lv_users` / `lv_sessions` / `lv_posts` / `lv_comments` / `lv_post_likes`），与同库其他项目以前缀隔离、互不冲突。前端 store 层为「API 优先 + 本地缓存兜底」：写点先落本地再异步 PUT `/api/me`，离线进队列、联网重试；无后端时纯本地降级。
 - **语音能力**：Web Speech API（`speechSynthesis` 发音示范 / `SpeechRecognition` 跟读识别），不支持语音识别的浏览器自动降级为自评模式。
 - **路由**：HashRouter（`#/courses`、`#/learn/en`），刷新不 404，天然适配静态托管。
 
