@@ -11,7 +11,7 @@ export async function onRequestPost({ request, env }) {
 
   const data = JSON.parse(u.data);
   const token = newToken();
-  await env.DB.prepare("INSERT INTO sessions(token,name,exp) VALUES(?,?,?)")
+  await env.DB.prepare("INSERT INTO lv_sessions(token,name,exp) VALUES(?,?,?)")
     .bind(token, name, Date.now() + 1000 * 60 * 60 * 24 * 30).run();
 
   return new Response(JSON.stringify({ user: { name, ...data } }), {

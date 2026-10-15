@@ -16,15 +16,15 @@ function makeDB() {
         bind(...p) {
           return {
             async first() {
-              if (sql.startsWith("SELECT * FROM users WHERE name=?")) return mem.users.get(p[0]) || null;
-              if (sql.startsWith("SELECT * FROM sessions WHERE token=?")) return mem.sessions.get(p[0]) || null;
+              if (sql.startsWith("SELECT * FROM lv_users WHERE name=?")) return mem.users.get(p[0]) || null;
+              if (sql.startsWith("SELECT * FROM lv_sessions WHERE token=?")) return mem.sessions.get(p[0]) || null;
               return null;
             },
             async all() { return { results: [] }; },
             async run() {
-              if (sql.startsWith("INSERT INTO users")) mem.users.set(p[0], { name: p[0], pw_hash: p[1], created: p[2], data: p[3] });
-              else if (sql.startsWith("INSERT INTO sessions")) mem.sessions.set(p[0], { token: p[0], name: p[1], exp: p[2] });
-              else if (sql.startsWith("UPDATE users SET data=?")) { const u = mem.users.get(p[1]); if (u) u.data = p[0]; }
+              if (sql.startsWith("INSERT INTO lv_users")) mem.users.set(p[0], { name: p[0], pw_hash: p[1], created: p[2], data: p[3] });
+              else if (sql.startsWith("INSERT INTO lv_sessions")) mem.sessions.set(p[0], { token: p[0], name: p[1], exp: p[2] });
+              else if (sql.startsWith("UPDATE lv_users SET data=?")) { const u = mem.users.get(p[1]); if (u) u.data = p[0]; }
             },
           };
         },

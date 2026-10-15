@@ -60,10 +60,10 @@ if ($whoOut -notmatch '@' -and $whoOut -notmatch 'logged in' -and $whoOut -notma
 }
 
 # ---- 准备 D1 数据库（P1 云端账号与同步） ----
-Write-Host "准备 D1 数据库：linguaverse" -ForegroundColor Cyan
-[void](Invoke-Wrangler @('d1', 'create', 'linguaverse'))
-[void](Invoke-Wrangler @('d1', 'execute', 'linguaverse', '--file=./schema.sql'))
-$infoJson = & $Node $NpxCli --yes wrangler@latest d1 info linguaverse --json 2>&1 | Out-String
+Write-Host "准备 D1 数据库：dev" -ForegroundColor Cyan
+[void](Invoke-Wrangler @('d1', 'create', 'dev'))
+[void](Invoke-Wrangler @('d1', 'execute', 'dev', '--file=./schema.sql'))
+$infoJson = & $Node $NpxCli --yes wrangler@latest d1 info dev --json 2>&1 | Out-String
 $idMatch = [regex]::Match($infoJson, '"uuid"\s*:\s*"([0-9a-fA-F-]+)"')
 if ($idMatch.Success -and (Test-Path wrangler.toml)) {
     $toml = Get-Content wrangler.toml -Raw

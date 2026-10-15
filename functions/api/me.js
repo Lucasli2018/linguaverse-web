@@ -17,6 +17,6 @@ export async function onRequestPut({ request, env }) {
   const body = await request.json().catch(() => ({}));
   const data = {};
   for (const k of ALLOWED) if (k in body) data[k] = body[k];
-  await env.DB.prepare("UPDATE users SET data=? WHERE name=?").bind(JSON.stringify(data), u.name).run();
+  await env.DB.prepare("UPDATE lv_users SET data=? WHERE name=?").bind(JSON.stringify(data), u.name).run();
   return json({ ok: true });
 }

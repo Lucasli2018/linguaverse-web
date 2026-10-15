@@ -38,7 +38,7 @@ export function newToken() {
 }
 
 export async function getUser(DB, name) {
-  return DB.prepare("SELECT * FROM users WHERE name=?").bind(name).first();
+  return DB.prepare("SELECT * FROM lv_users WHERE name=?").bind(name).first();
 }
 
 export function sessionCookie(token) {
@@ -54,7 +54,7 @@ export async function parseUser(env, request) {
   const m = cookie.match(/(?:^|;\s*)lv_sid=([^;]+)/);
   if (!m) return null;
   const token = decodeURIComponent(m[1]);
-  const s = await env.DB.prepare("SELECT * FROM sessions WHERE token=? AND exp>?").bind(token, Date.now()).first();
+  const s = await env.DB.prepare("SELECT * FROM lv_sessions WHERE token=? AND exp>?").bind(token, Date.now()).first();
   if (!s) return null;
   return getUser(env.DB, s.name);
 }

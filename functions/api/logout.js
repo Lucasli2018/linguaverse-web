@@ -6,7 +6,7 @@ export async function onRequestPost({ request, env }) {
   const m = cookie.match(/(?:^|;\s*)lv_sid=([^;]+)/);
   if (m) {
     const token = decodeURIComponent(m[1]);
-    await env.DB.prepare("DELETE FROM sessions WHERE token=?").bind(token).run();
+    await env.DB.prepare("DELETE FROM lv_sessions WHERE token=?").bind(token).run();
   }
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,

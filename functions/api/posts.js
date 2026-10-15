@@ -4,12 +4,12 @@ import { json, parseUser } from "./_shared.js";
 
 export async function onRequestGet({ request, env }) {
   const me = await parseUser(env, request);
-  const rows = await env.DB.prepare("SELECT * FROM posts ORDER BY time DESC LIMIT 60").all();
+  const rows = await env.DB.prepare("SELECT * FROM lv_posts ORDER BY time DESC LIMIT 60").all();
   const posts = await Promise.all((rows.results || []).map(async (p) => {
-    const cm = await env.DB.prepare("SELECT * FROM comments WHERE post_id=? ORDER BY time ASC").bind(p.id).all();
+    const cm = await env.DB.prepare("SELECT * FROM lv_comments WHERE post_id=? ORDER BY time ASC").bind(p.id).all();
     let liked = false;
     if (me) {
-      const l = await env.DB.prepare("SELECT 1 FROM post_likes WHERE post_id=? AND user=?").bind(p.id, me.name).first();
+      const l = await env.DB.prepare("SELECT 1 FROM lv_post_likes WHERE post_id=? AND user=?").bind(p.id, me.name).first();
       liked = !!l;
     }
     return {
@@ -28,13 +28,13 @@ export async function onRequestPost({ request, env }) {
   if (!text) return json({ error: "内容为空" }, 400);
 
   const id = "p" + Date.now();
-  await env.DB.prepare("INSERT INTO posts(id,user,body,time,likes) VALUES(?,?,?,?,0)")
+  await env.DB.prepare("INSERT INTO lv_posts(id,user,body,time,likes) VALUES(?,?,?,?,0)")
     .bind(id, me.name, text, Date.now()).run();
 
   // 发帖奖励 XP（写入云端 data）
   const data = JSON.parse(me.data);
   data.xp = (data.xp || 0) + 10;
-  await env.DB.prepare("UPDATE users SET data=? WHERE name=?").bind(JSON.stringify(data), me.name).run();
+  await env.DB.prepare("UPDATE lv_users SET data=? WHERE name=?").bind(JSON.stringify(data), me.name).run();
 
   return json({ ok: true, id, xp: data.xp });
 }

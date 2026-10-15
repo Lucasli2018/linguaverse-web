@@ -9,13 +9,13 @@ export async function onRequestPost({ request, env, params }) {
   const { action, text } = await request.json().catch(() => ({}));
 
   if (action === "like") {
-    const ex = await env.DB.prepare("SELECT 1 FROM post_likes WHERE post_id=? AND user=?").bind(id, me.name).first();
+    const ex = await env.DB.prepare("SELECT 1 FROM lv_post_likes WHERE post_id=? AND user=?").bind(id, me.name).first();
     if (ex) {
-      await env.DB.prepare("DELETE FROM post_likes WHERE post_id=? AND user=?").bind(id, me.name).run();
-      await env.DB.prepare("UPDATE posts SET likes=likes-1 WHERE id=?").bind(id).run();
+      await env.DB.prepare("DELETE FROM lv_post_likes WHERE post_id=? AND user=?").bind(id, me.name).run();
+      await env.DB.prepare("UPDATE lv_posts SET likes=likes-1 WHERE id=?").bind(id).run();
     } else {
-      await env.DB.prepare("INSERT OR IGNORE INTO post_likes(post_id,user) VALUES(?,?)").bind(id, me.name).run();
-      await env.DB.prepare("UPDATE posts SET likes=likes+1 WHERE id=?").bind(id).run();
+      await env.DB.prepare("INSERT OR IGNORE INTO lv_post_likes(post_id,user) VALUES(?,?)").bind(id, me.name).run();
+      await env.DB.prepare("UPDATE lv_posts SET likes=likes+1 WHERE id=?").bind(id).run();
     }
     return json({ ok: true, liked: !ex });
   }
@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env, params }) {
   if (action === "comment") {
     const t = (text || "").trim();
     if (!t) return json({ error: "评论为空" }, 400);
-    await env.DB.prepare("INSERT INTO comments(id,post_id,user,text,time) VALUES(?,?,?,?,?)")
+    await env.DB.prepare("INSERT INTO lv_comments(id,post_id,user,text,time) VALUES(?,?,?,?,?)")
       .bind("c" + Date.now(), id, me.name, t, Date.now()).run();
     return json({ ok: true });
   }

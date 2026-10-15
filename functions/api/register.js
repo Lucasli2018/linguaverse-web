@@ -14,11 +14,11 @@ export async function onRequestPost({ request, env }) {
     enrolled: {}, progress: {},
     moduleStat: { word: { c: 0, r: 0 }, grammar: { c: 0, r: 0 }, listen: { c: 0, r: 0 }, speak: { c: 0, r: 0 } },
   };
-  await env.DB.prepare("INSERT INTO users(name,pw_hash,created,data) VALUES(?,?,?,?)")
+  await env.DB.prepare("INSERT INTO lv_users(name,pw_hash,created,data) VALUES(?,?,?,?)")
     .bind(name, salt + ":" + hash, Date.now(), JSON.stringify(data)).run();
 
   const token = newToken();
-  await env.DB.prepare("INSERT INTO sessions(token,name,exp) VALUES(?,?,?)")
+  await env.DB.prepare("INSERT INTO lv_sessions(token,name,exp) VALUES(?,?,?)")
     .bind(token, name, Date.now() + 1000 * 60 * 60 * 24 * 30).run();
 
   return new Response(JSON.stringify({ user: { name, ...data } }), {
